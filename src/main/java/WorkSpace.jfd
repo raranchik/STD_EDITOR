@@ -1,0 +1,177 @@
+JFDML JFormDesigner: "7.0.5.4.420" Java: "11.0.14.1" encoding: "UTF-8"
+
+new FormModel {
+	contentType: "form/swing"
+	root: new FormRoot {
+		add( new FormWindow( "javax.swing.JFrame", new FormLayoutManager( class java.awt.GridBagLayout ) {
+			"$columnSpecs": "1004:1.0"
+			"$rowSpecs": "top:60, bottom:0:1.0, 40"
+			"$hGap": 5
+			"$vGap": 5
+			"$alignLeft": true
+			"$alignTop": true
+		} ) {
+			name: "this"
+			"visible": true
+			"title": "Spot the difference - EDITOR"
+			"resizable": false
+			add( new FormComponent( "javax.swing.JButton" ) {
+				name: "selectWorkDirectory"
+				"text": "Select work directory"
+				"maximumSize": new java.awt.Dimension( 200, 40 )
+				"preferredSize": new java.awt.Dimension( 200, 40 )
+				"minimumSize": new java.awt.Dimension( 200, 40 )
+				addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "selectWorkDirectory", true ) )
+			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+				"hAlign": 0
+				"vAlign": 0
+			} )
+			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+				"$columnSpecs": "left:350, center:0:1.0, right:350"
+				"$hGap": 5
+				"$alignLeft": true
+				"$alignTop": true
+				"$rowSpecs": "0:1.0"
+			} ) {
+				name: "body"
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$columnSpecs": "0:1.0"
+					"$rowSpecs": "0, 0:1.0"
+					"$alignLeft": true
+					"$alignTop": true
+					"$vGap": 5
+				} ) {
+					name: "levelsDataView"
+					"maximumSize": new java.awt.Dimension( 350, 2147483647 )
+					"minimumSize": new java.awt.Dimension( 350, 40 )
+					"preferredSize": new java.awt.Dimension( 350, 40 )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "selectedExistingLevelData"
+						"text": "List of existing levels data: NOT SELECTED"
+						"font": new java.awt.Font( "Dialog", 1, 14 )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"insets": new java.awt.Insets( 0, 10, 0, 0 )
+						"hAlign": 2
+						"vAlign": 5
+					} )
+					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+						name: "scrollPane1"
+						"horizontalScrollBarPolicy": 32
+						"verticalScrollBarPolicy": 22
+						add( new FormComponent( "javax.swing.JList" ) {
+							name: "listExistingLevelsData"
+						} )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 1
+						"hAlign": 5
+						"vAlign": 5
+					} )
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+					"hAlign": 5
+					"vAlign": 5
+				} )
+				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+					name: "cardView"
+					"horizontalScrollBarPolicy": 32
+					"verticalScrollBarPolicy": 22
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "currentWorkCard"
+					} )
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+					"gridx": 1
+					"hAlign": 5
+					"vAlign": 5
+				} )
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$rowSpecs": "0, 0, 0, 0, 0:1.0"
+					"$hGap": 5
+					"$vGap": 5
+					"$alignLeft": true
+					"$alignTop": true
+					"$columnSpecs": "0:1.0"
+				} ) {
+					name: "levelDataManegment"
+					"maximumSize": new java.awt.Dimension( 350, 2147483647 )
+					"minimumSize": new java.awt.Dimension( 350, 165 )
+					"preferredSize": new java.awt.Dimension( 350, 167 )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "selectFirstCard"
+						"text": "Select first card"
+						"maximumSize": new java.awt.Dimension( 140, 40 )
+						"minimumSize": new java.awt.Dimension( 140, 40 )
+						"preferredSize": new java.awt.Dimension( 140, 40 )
+						"enabled": false
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "selectFirstCard", true ) )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"hAlign": 0
+						"vAlign": 0
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "firstCardLabel"
+						"text": "First card: NOT SELECTED"
+						"font": &Font0 new java.awt.Font( "Dialog", 1, 14 )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 1
+						"hAlign": 2
+						"vAlign": 5
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "selectSecondCard"
+						"text": "Select second card"
+						"maximumSize": new java.awt.Dimension( 140, 40 )
+						"minimumSize": new java.awt.Dimension( 140, 40 )
+						"preferredSize": new java.awt.Dimension( 140, 40 )
+						"enabled": false
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "selectSecondCard", true ) )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 2
+						"hAlign": 0
+						"vAlign": 0
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "secondCardLabel"
+						"text": "Second card: NOT SELECTED"
+						"font": #Font0
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 3
+						"hAlign": 2
+						"vAlign": 5
+					} )
+					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+						name: "levelDataView"
+						"horizontalScrollBarPolicy": 32
+						"verticalScrollBarPolicy": 22
+						add( new FormComponent( "javax.swing.JList" ) {
+							name: "differencesList"
+						} )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 4
+						"hAlign": 5
+						"vAlign": 5
+					} )
+				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+					"gridx": 2
+					"hAlign": 5
+					"vAlign": 5
+				} )
+			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+				"gridy": 1
+				"hAlign": 5
+				"vAlign": 5
+			} )
+			add( new FormComponent( "javax.swing.JLabel" ) {
+				name: "workDirectoryLabel"
+				"text": "Work directory: NOT SELECTED"
+				"font": new java.awt.Font( "Dialog", 1, 14 )
+			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+				"gridy": 2
+				"hAlign": 2
+				"vAlign": 5
+				"insets": new java.awt.Insets( 0, 10, 0, 0 )
+			} )
+		}, new FormLayoutConstraints( null ) {
+			"location": new java.awt.Point( 0, 0 )
+			"size": new java.awt.Dimension( 1080, 860 )
+		} )
+	}
+}
