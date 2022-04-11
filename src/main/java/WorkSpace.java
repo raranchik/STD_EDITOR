@@ -1,13 +1,22 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class WorkSpace extends JFrame {
     // region workSpace CONST
     public static final String NOT_SELECTED = "NOT SELECTED";
     public static final String DIRECTORY_CHOOSER_TITLE = "Select work directory";
+    public static final String CARD_CHOOSER_TITLE = "Select card";
     public static final String DIRECTORY_LABEL_TEMPLATE = "Work directory: ";
+    public static final String FIRST_CARD_LABEL_TEMPLATE = "First card: ";
+    public static final String SECOND_CARD_LABEL_TEMPLATE = "Second card: ";
+    public final String[][] CARD_CHOOSER_FILTERS = {
+            {"png", "PNG files (*.png)"},
+            {"jpeg" , "JPEG files (*.jpeg)"}
+    };
     // endregion
 
     // region WorkSpace VAR
@@ -16,9 +25,29 @@ public class WorkSpace extends JFrame {
     private JFileChooser cardChooser;
     private String firstCard = "";
     private String firstCardAbsolutePath = "";
+    private Image firstCardImage = null;
     private String secondCard = "";
     private String secondCardAbsolutePath = "";
     // endregion
+
+    // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
+    private JButton selectWorkDirectory;
+    private JPanel body;
+    private JPanel levelsDataView;
+    private JLabel selectedExistingLevelData;
+    private JScrollPane scrollPane1;
+    private JList listExistingLevelsData;
+    private JScrollPane cardView;
+    private JLabel currentWorkCard;
+    private JPanel levelDataManegment;
+    private JButton selectFirstCard;
+    private JLabel firstCardLabel;
+    private JButton selectSecondCard;
+    private JLabel secondCardLabel;
+    private JScrollPane levelDataView;
+    private JList differencesList;
+    private JLabel workDirectoryLabel;
+    // JFormDesigner - End of variables declaration  //GEN-END:variables
 
     public WorkSpace() {
         initComponents();
@@ -26,27 +55,7 @@ public class WorkSpace extends JFrame {
         prepareChoosers();
     }
 
-    private void selectWorkDirectory(ActionEvent e) {
-        if (directoryChooser.showOpenDialog(selectWorkDirectory) == JFileChooser.APPROVE_OPTION) {
-            currentDirectoryAbsolutePath = directoryChooser.getSelectedFile().toString();
-            workDirectoryLabel.setText(DIRECTORY_LABEL_TEMPLATE + currentDirectoryAbsolutePath);
-            selectFirstCard.setEnabled(true);
-//            prepareListExistingItems();
-        } else {
-            selectFirstCard.setEnabled(false);
-            workDirectoryLabel.setText(DIRECTORY_LABEL_TEMPLATE + NOT_SELECTED);
-            currentDirectoryAbsolutePath = "";
-        }
-    }
-
-    private void selectFirstCard(ActionEvent e) {
-        // TODO add your code here
-    }
-
-    private void selectSecondCard(ActionEvent e) {
-        // TODO add your code here
-    }
-
+    // region COMPONENTS
     private void initComponents() {
         // JFormDesigner - Component initialization - DO NOT MODIFY  //GEN-BEGIN:initComponents
         selectWorkDirectory = new JButton();
@@ -217,9 +226,17 @@ public class WorkSpace extends JFrame {
         prepareMainFrame();
     }
 
+    private void prepareMainFrame() {
+        setSize(Toolkit.getDefaultToolkit().getScreenSize());
+        setLocationRelativeTo(null);
+    }
+    // endregion
+
+    // region CHOOSERS
     private void prepareChoosers() {
         directoryChooser = new JFileChooser();
         prepareWorkDirectoryChooser();
+
         cardChooser = new JFileChooser();
         prepareCardChooser();
     }
@@ -233,30 +250,88 @@ public class WorkSpace extends JFrame {
     }
 
     private void prepareCardChooser() {
-
+        cardChooser.setDialogTitle(CARD_CHOOSER_TITLE);
+        cardChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        cardChooser.setAcceptAllFileFilterUsed(false);
+        addCardFileFilter();
     }
 
-    private void prepareMainFrame() {
-        setSize(Toolkit.getDefaultToolkit().getScreenSize());
+    private void addCardFileFilter() {
+        for (int i = 0; i < CARD_CHOOSER_FILTERS[0].length; i++) {
+            FileFilterExt eff = new FileFilterExt(CARD_CHOOSER_FILTERS[i][0],
+                    CARD_CHOOSER_FILTERS[i][1]);
+            cardChooser.addChoosableFileFilter(eff);
+        }
+    }
+    // endregion
+
+    // region BUTTONS
+    private void selectWorkDirectory(ActionEvent e) {
+        if (directoryChooser.showOpenDialog(selectWorkDirectory) == JFileChooser.APPROVE_OPTION) {
+            currentDirectoryAbsolutePath = directoryChooser.getSelectedFile().toString();
+            workDirectoryLabel.setText(DIRECTORY_LABEL_TEMPLATE + currentDirectoryAbsolutePath);
+            selectFirstCard.setEnabled(true);
+            cardChooser.setCurrentDirectory(new File(currentDirectoryAbsolutePath));
+//            prepareListExistingItems();
+        } else {
+            selectFirstCard.setEnabled(false);
+            workDirectoryLabel.setText(DIRECTORY_LABEL_TEMPLATE + NOT_SELECTED);
+            currentDirectoryAbsolutePath = "";
+        }
+
+        repaint();
     }
 
-    // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
-    private JButton selectWorkDirectory;
-    private JPanel body;
-    private JPanel levelsDataView;
-    private JLabel selectedExistingLevelData;
-    private JScrollPane scrollPane1;
-    private JList listExistingLevelsData;
-    private JScrollPane cardView;
-    private JLabel currentWorkCard;
-    private JPanel levelDataManegment;
-    private JButton selectFirstCard;
-    private JLabel firstCardLabel;
-    private JButton selectSecondCard;
-    private JLabel secondCardLabel;
-    private JScrollPane levelDataView;
-    private JList differencesList;
-    private JLabel workDirectoryLabel;
-    // JFormDesigner - End of variables declaration  //GEN-END:variables
+    private void selectFirstCard(ActionEvent e) {
+        if (cardChooser.showOpenDialog(cardChooser) == JFileChooser.APPROVE_OPTION) {
+            firstCard = cardChooser.getSelectedFile().getName();
+            firstCardAbsolutePath = cardChooser.getSelectedFile().toString();
+            firstCardLabel.setText(FIRST_CARD_LABEL_TEMPLATE + firstCard);
+            try {
+                firstCardImage = ImageIO.read(cardChooser.getSelectedFile());
+//                drawCard();
+                selectSecondCard.setEnabled(true);
+//                cardIconLabel.setEnabled(true);
+//                addSecondCardChooser();
+//                prepareLevelData();
+            } catch (IOException ex) {
+                //
+            }
+        }
+        else {
+            firstCardLabel.setText(FIRST_CARD_LABEL_TEMPLATE + NOT_SELECTED);
+            firstCard = "";
+            firstCardAbsolutePath = "";
+            firstCardImage = null;
+        }
+
+        repaint();
+    }
+
+    private void selectSecondCard(ActionEvent e) {
+        if (cardChooser.showOpenDialog(cardChooser) == JFileChooser.APPROVE_OPTION) {
+            secondCard = cardChooser.getSelectedFile().getName();
+            secondCardAbsolutePath = cardChooser.getSelectedFile().toString();
+            secondCardLabel.setText(SECOND_CARD_LABEL_TEMPLATE + secondCard);
+//            try {
+//                firstCardImage = ImageIO.read(cardChooser.getSelectedFile());
+//                drawCard();
+//                selectSecondCard.setEnabled(true);
+//                cardIconLabel.setEnabled(true);
+//                addSecondCardChooser();
+//                prepareLevelData();
+//            } catch (IOException ex) {
+                //
+//            }
+        }
+        else {
+            secondCardLabel.setText(SECOND_CARD_LABEL_TEMPLATE + NOT_SELECTED);
+            secondCard = "";
+            secondCardAbsolutePath = "";
+        }
+
+        repaint();
+    }
+    // endregion
 
 }
