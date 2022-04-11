@@ -14,7 +14,6 @@ new FormModel {
 			name: "this"
 			"visible": true
 			"title": "Spot the difference - EDITOR"
-			"resizable": false
 			add( new FormComponent( "javax.swing.JButton" ) {
 				name: "selectWorkDirectory"
 				"text": "Select work directory"
@@ -36,7 +35,7 @@ new FormModel {
 				name: "body"
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 					"$columnSpecs": "0:1.0"
-					"$rowSpecs": "0, 0:1.0"
+					"$rowSpecs": "0, 0:1.0, bottom:0"
 					"$alignLeft": true
 					"$alignTop": true
 					"$vGap": 5
@@ -66,6 +65,13 @@ new FormModel {
 						"hAlign": 5
 						"vAlign": 5
 					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "countLevelsDataLabel"
+						"text": "Count levels data: 0"
+						"font": new java.awt.Font( "Dialog", 1, 14 )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 2
+					} )
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"hAlign": 5
 					"vAlign": 5
@@ -74,16 +80,29 @@ new FormModel {
 					name: "cardView"
 					"horizontalScrollBarPolicy": 32
 					"verticalScrollBarPolicy": 22
-					add( new FormComponent( "javax.swing.JLabel" ) {
-						name: "currentWorkCard"
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
+						"hgap": 0
+						"vgap": 0
+					} ) {
+						name: "cardContainer"
+						"alignmentX": 0.0f
+						"alignmentY": 0.0f
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "label1"
+							"horizontalAlignment": 0
+							"horizontalTextPosition": 0
+							"text": "aaaaaaaaaa"
+							"autoscrolls": true
+							"iconTextGap": 0
+						} )
 					} )
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"gridx": 1
-					"hAlign": 5
-					"vAlign": 5
+					"hAlign": 0
+					"vAlign": 0
 				} )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
-					"$rowSpecs": "0, 0, 0, 0, 0:1.0"
+					"$rowSpecs": "0, 0, 0, 0, 0:1.0, bottom:0"
 					"$hGap": 5
 					"$vGap": 5
 					"$alignLeft": true
@@ -94,6 +113,7 @@ new FormModel {
 					"maximumSize": new java.awt.Dimension( 350, 2147483647 )
 					"minimumSize": new java.awt.Dimension( 350, 165 )
 					"preferredSize": new java.awt.Dimension( 350, 167 )
+					"font": new java.awt.Font( ".AppleSystemUIFont", 0, 14 )
 					add( new FormComponent( "javax.swing.JButton" ) {
 						name: "selectFirstCard"
 						"text": "Select first card"
@@ -149,9 +169,16 @@ new FormModel {
 						"hAlign": 5
 						"vAlign": 5
 					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "countDifferencesLabel"
+						"text": "Count differences: 0"
+						"font": new java.awt.Font( "Dialog", 1, 14 )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 5
+					} )
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"gridx": 2
-					"hAlign": 5
+					"hAlign": 2
 					"vAlign": 5
 				} )
 			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
