@@ -13,6 +13,8 @@ public class WorkSpace extends JFrame {
     public static final String DIRECTORY_LABEL_TEMPLATE = "Work directory: ";
     public static final String FIRST_CARD_LABEL_TEMPLATE = "First card: ";
     public static final String SECOND_CARD_LABEL_TEMPLATE = "Second card: ";
+    public static final String COUNT_LEVELS_DATA_LABEL_TEMPLATE = "Count levels data: ";
+    public static final String COUNT_DIFFERENCES_LABEL_TEMPLATE = "Count differences: ";
     public final String[][] CARD_CHOOSER_FILTERS = {
             {"png", "PNG files (*.png)"},
             {"jpeg" , "JPEG files (*.jpeg)"}
@@ -37,8 +39,10 @@ public class WorkSpace extends JFrame {
     private JLabel selectedExistingLevelData;
     private JScrollPane scrollPane1;
     private JList listExistingLevelsData;
+    private JLabel countLevelsDataLabel;
     private JScrollPane cardView;
-    private JLabel currentWorkCard;
+    private JPanel cardContainer;
+    private JLabel label1;
     private JPanel levelDataManegment;
     private JButton selectFirstCard;
     private JLabel firstCardLabel;
@@ -46,6 +50,7 @@ public class WorkSpace extends JFrame {
     private JLabel secondCardLabel;
     private JScrollPane levelDataView;
     private JList differencesList;
+    private JLabel countDifferencesLabel;
     private JLabel workDirectoryLabel;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 
@@ -64,8 +69,10 @@ public class WorkSpace extends JFrame {
         selectedExistingLevelData = new JLabel();
         scrollPane1 = new JScrollPane();
         listExistingLevelsData = new JList();
+        countLevelsDataLabel = new JLabel();
         cardView = new JScrollPane();
-        currentWorkCard = new JLabel();
+        cardContainer = new JPanel();
+        label1 = new JLabel();
         levelDataManegment = new JPanel();
         selectFirstCard = new JButton();
         firstCardLabel = new JLabel();
@@ -73,12 +80,12 @@ public class WorkSpace extends JFrame {
         secondCardLabel = new JLabel();
         levelDataView = new JScrollPane();
         differencesList = new JList();
+        countDifferencesLabel = new JLabel();
         workDirectoryLabel = new JLabel();
 
         //======== this ========
         setVisible(true);
         setTitle("Spot the difference - EDITOR");
-        setResizable(false);
         var contentPane = getContentPane();
         contentPane.setLayout(new GridBagLayout());
         ((GridBagLayout)contentPane.getLayout()).columnWidths = new int[] {1004, 0};
@@ -111,9 +118,9 @@ public class WorkSpace extends JFrame {
                 levelsDataView.setPreferredSize(new Dimension(350, 40));
                 levelsDataView.setLayout(new GridBagLayout());
                 ((GridBagLayout)levelsDataView.getLayout()).columnWidths = new int[] {0, 0};
-                ((GridBagLayout)levelsDataView.getLayout()).rowHeights = new int[] {0, 0, 0};
+                ((GridBagLayout)levelsDataView.getLayout()).rowHeights = new int[] {0, 0, 0, 0};
                 ((GridBagLayout)levelsDataView.getLayout()).columnWeights = new double[] {1.0, 1.0E-4};
-                ((GridBagLayout)levelsDataView.getLayout()).rowWeights = new double[] {0.0, 1.0, 1.0E-4};
+                ((GridBagLayout)levelsDataView.getLayout()).rowWeights = new double[] {0.0, 1.0, 0.0, 1.0E-4};
 
                 //---- selectedExistingLevelData ----
                 selectedExistingLevelData.setText("List of existing levels data: NOT SELECTED");
@@ -130,6 +137,13 @@ public class WorkSpace extends JFrame {
                 }
                 levelsDataView.add(scrollPane1, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 0), 0, 0));
+
+                //---- countLevelsDataLabel ----
+                countLevelsDataLabel.setText("Count levels data: 0");
+                countLevelsDataLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 14));
+                levelsDataView.add(countLevelsDataLabel, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL,
                     new Insets(0, 0, 0, 0), 0, 0));
             }
             body.add(levelsDataView, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
@@ -140,10 +154,25 @@ public class WorkSpace extends JFrame {
             {
                 cardView.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
                 cardView.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-                cardView.setViewportView(currentWorkCard);
+
+                //======== cardContainer ========
+                {
+                    cardContainer.setAlignmentX(0.0F);
+                    cardContainer.setAlignmentY(0.0F);
+                    cardContainer.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+
+                    //---- label1 ----
+                    label1.setHorizontalAlignment(SwingConstants.CENTER);
+                    label1.setHorizontalTextPosition(SwingConstants.CENTER);
+                    label1.setText("aaaaaaaaaa");
+                    label1.setAutoscrolls(true);
+                    label1.setIconTextGap(0);
+                    cardContainer.add(label1);
+                }
+                cardView.setViewportView(cardContainer);
             }
             body.add(cardView, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                GridBagConstraints.CENTER, GridBagConstraints.NONE,
                 new Insets(0, 0, 0, 5), 0, 0));
 
             //======== levelDataManegment ========
@@ -151,11 +180,12 @@ public class WorkSpace extends JFrame {
                 levelDataManegment.setMaximumSize(new Dimension(350, 2147483647));
                 levelDataManegment.setMinimumSize(new Dimension(350, 165));
                 levelDataManegment.setPreferredSize(new Dimension(350, 167));
+                levelDataManegment.setFont(new Font(".AppleSystemUIFont", Font.PLAIN, 14));
                 levelDataManegment.setLayout(new GridBagLayout());
                 ((GridBagLayout)levelDataManegment.getLayout()).columnWidths = new int[] {0, 0};
-                ((GridBagLayout)levelDataManegment.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0};
+                ((GridBagLayout)levelDataManegment.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0};
                 ((GridBagLayout)levelDataManegment.getLayout()).columnWeights = new double[] {1.0, 1.0E-4};
-                ((GridBagLayout)levelDataManegment.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 1.0, 1.0E-4};
+                ((GridBagLayout)levelDataManegment.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0E-4};
 
                 //---- selectFirstCard ----
                 selectFirstCard.setText("Select first card");
@@ -201,10 +231,17 @@ public class WorkSpace extends JFrame {
                 }
                 levelDataManegment.add(levelDataView, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
                     GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 0), 0, 0));
+
+                //---- countDifferencesLabel ----
+                countDifferencesLabel.setText("Count differences: 0");
+                countDifferencesLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 14));
+                levelDataManegment.add(countDifferencesLabel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL,
                     new Insets(0, 0, 0, 0), 0, 0));
             }
             body.add(levelDataManegment, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
                 new Insets(0, 0, 0, 0), 0, 0));
         }
         contentPane.add(body, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
@@ -227,7 +264,8 @@ public class WorkSpace extends JFrame {
     }
 
     private void prepareMainFrame() {
-        setSize(Toolkit.getDefaultToolkit().getScreenSize());
+        Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
+        setSize(size.width / 2, size.height / 2);
         setLocationRelativeTo(null);
     }
     // endregion
