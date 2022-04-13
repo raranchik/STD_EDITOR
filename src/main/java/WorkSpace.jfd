@@ -26,7 +26,7 @@ new FormModel {
 				"vAlign": 0
 			} )
 			add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
-				"$columnSpecs": "left:350, center:0:1.0, right:350"
+				"$columnSpecs": "left:350, 0:1.0, right:350"
 				"$hGap": 5
 				"$alignLeft": true
 				"$alignTop": true
@@ -49,7 +49,6 @@ new FormModel {
 						"text": "List of existing levels data: NOT SELECTED"
 						"font": new java.awt.Font( "Dialog", 1, 14 )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-						"insets": new java.awt.Insets( 0, 10, 0, 0 )
 						"hAlign": 2
 						"vAlign": 5
 					} )
@@ -59,6 +58,8 @@ new FormModel {
 						"verticalScrollBarPolicy": 22
 						add( new FormComponent( "javax.swing.JList" ) {
 							name: "listExistingLevelsData"
+							"selectionMode": 0
+							"visibleRowCount": 26
 						} )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridy": 1
@@ -75,31 +76,129 @@ new FormModel {
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"hAlign": 5
 					"vAlign": 5
+					"insets": new java.awt.Insets( 0, 10, 0, 10 )
 				} )
-				add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
-					name: "cardView"
-					"horizontalScrollBarPolicy": 32
-					"verticalScrollBarPolicy": 22
-					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.FlowLayout ) {
-						"hgap": 0
-						"vgap": 0
+				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+					"$columnSpecs": "0:1.0"
+					"$rowSpecs": "top:0, 0, 0:1.0, 0"
+					"$vGap": 5
+				} ) {
+					name: "dashboard"
+					"border": new javax.swing.border.TitledBorder( null, "Cards and differences view", 1, 0, new java.awt.Font( "Dialog", 1, 14 ), null )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+						"$columnSpecs": "0, 0"
+						"$rowSpecs": "0"
+						"$hGap": 5
+						"$alignTop": true
+						"$alignLeft": true
 					} ) {
-						name: "cardContainer"
-						"alignmentX": 0.0f
-						"alignmentY": 0.0f
-						add( new FormComponent( "javax.swing.JLabel" ) {
-							name: "label1"
-							"horizontalAlignment": 0
-							"horizontalTextPosition": 0
-							"text": "aaaaaaaaaa"
-							"autoscrolls": true
-							"iconTextGap": 0
+						name: "dashboardHeader"
+						"minimumSize": new java.awt.Dimension( 400, 50 )
+						"preferredSize": new java.awt.Dimension( 450, 50 )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "switchCard"
+							"text": "Second card preview"
+							"enabled": false
+							"maximumSize": new java.awt.Dimension( 170, 40 )
+							"minimumSize": new java.awt.Dimension( 170, 40 )
+							"preferredSize": new java.awt.Dimension( 170, 40 )
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "switchCardToSecond", true ) )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"hAlign": 5
+							"vAlign": 5
 						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "returnToFirstCard"
+							"text": "Go to the first card"
+							"maximumSize": new java.awt.Dimension( 150, 40 )
+							"minimumSize": new java.awt.Dimension( 150, 40 )
+							"preferredSize": new java.awt.Dimension( 150, 40 )
+							"enabled": false
+							addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "returnToFirstCard", true ) )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"gridx": 1
+							"hAlign": 5
+							"vAlign": 5
+						} )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"insets": new java.awt.Insets( 0, 10, 0, 10 )
+						"hAlign": 5
+						"vAlign": 5
+					} )
+					add( new FormComponent( "javax.swing.JLabel" ) {
+						name: "currentCardLabel"
+						"text": "Currrent card:"
+						"font": new java.awt.Font( "Dialog", 1, 12 )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 1
+						"hAlign": 2
+						"vAlign": 5
+					} )
+					add( new FormContainer( "javax.swing.JScrollPane", new FormLayoutManager( class javax.swing.JScrollPane ) ) {
+						name: "dashboardBody"
+						"horizontalScrollBarPolicy": 32
+						"verticalScrollBarPolicy": 22
+						add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+							"$columnSpecs": "0"
+							"$rowSpecs": "0"
+						} ) {
+							name: "cardBody"
+						} )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 2
+						"vAlign": 5
+						"hAlign": 5
+					} )
+					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
+						"$columnSpecs": "135, 50, 175"
+						"$rowSpecs": "0"
+						"$hGap": 5
+						"$alignTop": true
+						"$alignLeft": true
+					} ) {
+						name: "dashboardFooter"
+						"minimumSize": new java.awt.Dimension( 30, 50 )
+						"preferredSize": new java.awt.Dimension( 30, 50 )
+						add( new FormComponent( "javax.swing.JLabel" ) {
+							name: "diffrenceBorderSizeLabel"
+							"text": "Differences border size:"
+							"maximumSize": new java.awt.Dimension( 160, 40 )
+							"minimumSize": new java.awt.Dimension( 0, 40 )
+							"preferredSize": new java.awt.Dimension( 145, 40 )
+							"alignmentX": 0.5f
+							"horizontalAlignment": 2
+							"font": new java.awt.Font( "Dialog", 1, 12 )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
+						add( new FormComponent( "javax.swing.JSpinner" ) {
+							name: "borderSizeSpinner"
+							"model": new javax.swing.SpinnerNumberModel( 5, 1, 10, 1 )
+							"enabled": false
+							addEvent( new FormEvent( "javax.swing.event.ChangeListener", "stateChanged", "borderSizeSpinnerStateChanged", true ) )
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"hAlign": 5
+							"vAlign": 5
+							"gridx": 1
+						} )
+						add( new FormComponent( "javax.swing.JButton" ) {
+							name: "button1"
+							"text": "Remove all differences"
+							"maximumSize": new java.awt.Dimension( 78, 40 )
+							"minimumSize": new java.awt.Dimension( 78, 40 )
+							"preferredSize": new java.awt.Dimension( 78, 40 )
+							"enabled": false
+						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+							"gridx": 2
+							"hAlign": 5
+							"vAlign": 5
+						} )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridy": 3
+						"insets": new java.awt.Insets( 0, 10, 0, 10 )
 					} )
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"gridx": 1
-					"hAlign": 0
-					"vAlign": 0
+					"hAlign": 5
+					"vAlign": 5
 				} )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 					"$rowSpecs": "0, 0, 0, 0, 0:1.0, bottom:0"
@@ -180,6 +279,7 @@ new FormModel {
 					"gridx": 2
 					"hAlign": 2
 					"vAlign": 5
+					"insets": new java.awt.Insets( 0, 10, 0, 10 )
 				} )
 			}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 				"gridy": 1
@@ -198,7 +298,7 @@ new FormModel {
 			} )
 		}, new FormLayoutConstraints( null ) {
 			"location": new java.awt.Point( 0, 0 )
-			"size": new java.awt.Dimension( 1080, 860 )
+			"size": new java.awt.Dimension( 1160, 610 )
 		} )
 	}
 }
