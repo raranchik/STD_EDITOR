@@ -1,20 +1,37 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.beans.*;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.event.*;
+import net.miginfocom.swing.*;
 
 public class WorkSpace extends JFrame {
     // region workSpace CONST
+    public static final String CARDS_FOLDER = "Cards";
+    public static final String MAIN_DIRECTORY = "Assets";
+    public static final String LEVELS_DATA_PATH_AT_MAIN_DIRECTORY = "\\ScriptableObject\\LevelData";
+    public static final boolean IS_TEST = true;
     public static final String NOT_SELECTED = "NOT SELECTED";
     public static final String DIRECTORY_CHOOSER_TITLE = "Select work directory";
     public static final String CARD_CHOOSER_TITLE = "Select card";
     public static final String DIRECTORY_LABEL_TEMPLATE = "Work directory: ";
     public static final String FIRST_CARD_LABEL_TEMPLATE = "First card: ";
     public static final String SECOND_CARD_LABEL_TEMPLATE = "Second card: ";
+    public static final String CURRENT_CARD_LABEL_TEMPLATE = "Current card: ";
     public static final String COUNT_LEVELS_DATA_LABEL_TEMPLATE = "Count levels data: ";
     public static final String COUNT_DIFFERENCES_LABEL_TEMPLATE = "Count differences: ";
+    public static final String WARNING_TITLE_IF_EQUALS_FILES = "Identical files";
+    public static final String WARNING_MESSAGE_IF_EQUALS_FILES = "You selected the same image.";
+    public static final String WARNING_TITLE_IF_NOT_CARDS_FOLDER = "Incorrect directory";
+    public static final String WARNING_MESSAGE_IF_NOT_CARDS_FOLDER = "You have selected the wrong directory." +
+            " Select the directory with the cards.";
     public final String[][] CARD_CHOOSER_FILTERS = {
             {"png", "PNG files (*.png)"},
             {"jpeg" , "JPEG files (*.jpeg)"}
@@ -27,9 +44,12 @@ public class WorkSpace extends JFrame {
     private JFileChooser cardChooser;
     private String firstCard = "";
     private String firstCardAbsolutePath = "";
-    private Image firstCardImage = null;
+    private BufferedImage firstCardImage = null;
+    private BufferedImage secondCardImage = null;
     private String secondCard = "";
     private String secondCardAbsolutePath = "";
+    private DrawingPanel cardIconLabel = null;
+    private int currentViewImage = -1;
     // endregion
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
@@ -40,9 +60,17 @@ public class WorkSpace extends JFrame {
     private JScrollPane scrollPane1;
     private JList listExistingLevelsData;
     private JLabel countLevelsDataLabel;
-    private JScrollPane cardView;
-    private JPanel cardContainer;
-    private JLabel label1;
+    private JPanel dashboard;
+    private JPanel dashboardHeader;
+    private JButton switchCard;
+    private JButton returnToFirstCard;
+    private JLabel currentCardLabel;
+    private JScrollPane dashboardBody;
+    private JPanel cardBody;
+    private JPanel dashboardFooter;
+    private JLabel diffrenceBorderSizeLabel;
+    private JSpinner borderSizeSpinner;
+    private JButton button1;
     private JPanel levelDataManegment;
     private JButton selectFirstCard;
     private JLabel firstCardLabel;
@@ -70,9 +98,17 @@ public class WorkSpace extends JFrame {
         scrollPane1 = new JScrollPane();
         listExistingLevelsData = new JList();
         countLevelsDataLabel = new JLabel();
-        cardView = new JScrollPane();
-        cardContainer = new JPanel();
-        label1 = new JLabel();
+        dashboard = new JPanel();
+        dashboardHeader = new JPanel();
+        switchCard = new JButton();
+        returnToFirstCard = new JButton();
+        currentCardLabel = new JLabel();
+        dashboardBody = new JScrollPane();
+        cardBody = new JPanel();
+        dashboardFooter = new JPanel();
+        diffrenceBorderSizeLabel = new JLabel();
+        borderSizeSpinner = new JSpinner();
+        button1 = new JButton();
         levelDataManegment = new JPanel();
         selectFirstCard = new JButton();
         firstCardLabel = new JLabel();
@@ -127,12 +163,16 @@ public class WorkSpace extends JFrame {
                 selectedExistingLevelData.setFont(new Font(Font.DIALOG, Font.BOLD, 14));
                 levelsDataView.add(selectedExistingLevelData, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                     GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
-                    new Insets(0, 10, 5, 0), 0, 0));
+                    new Insets(0, 0, 5, 0), 0, 0));
 
                 //======== scrollPane1 ========
                 {
                     scrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
                     scrollPane1.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+                    //---- listExistingLevelsData ----
+                    listExistingLevelsData.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                    listExistingLevelsData.setVisibleRowCount(26);
                     scrollPane1.setViewportView(listExistingLevelsData);
                 }
                 levelsDataView.add(scrollPane1, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
@@ -148,31 +188,120 @@ public class WorkSpace extends JFrame {
             }
             body.add(levelsDataView, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                new Insets(0, 0, 0, 5), 0, 0));
+                new Insets(0, 10, 0, 15), 0, 0));
 
-            //======== cardView ========
+            //======== dashboard ========
             {
-                cardView.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-                cardView.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+                dashboard.setBorder(new TitledBorder(null, "Cards and differences view", TitledBorder.LEFT, TitledBorder.DEFAULT_POSITION,
+                    new Font("Dialog", Font.BOLD, 14)));
+                dashboard.setLayout(new GridBagLayout());
+                ((GridBagLayout)dashboard.getLayout()).columnWeights = new double[] {1.0};
+                ((GridBagLayout)dashboard.getLayout()).rowWeights = new double[] {0.0, 0.0, 1.0, 0.0};
 
-                //======== cardContainer ========
+                //======== dashboardHeader ========
                 {
-                    cardContainer.setAlignmentX(0.0F);
-                    cardContainer.setAlignmentY(0.0F);
-                    cardContainer.setLayout(new FlowLayout(FlowLayout.CENTER, 0, 0));
+                    dashboardHeader.setMinimumSize(new Dimension(400, 50));
+                    dashboardHeader.setPreferredSize(new Dimension(450, 50));
+                    dashboardHeader.setLayout(new GridBagLayout());
+                    ((GridBagLayout)dashboardHeader.getLayout()).columnWidths = new int[] {0, 0, 0};
+                    ((GridBagLayout)dashboardHeader.getLayout()).rowHeights = new int[] {0, 0};
+                    ((GridBagLayout)dashboardHeader.getLayout()).columnWeights = new double[] {0.0, 0.0, 1.0E-4};
+                    ((GridBagLayout)dashboardHeader.getLayout()).rowWeights = new double[] {0.0, 1.0E-4};
 
-                    //---- label1 ----
-                    label1.setHorizontalAlignment(SwingConstants.CENTER);
-                    label1.setHorizontalTextPosition(SwingConstants.CENTER);
-                    label1.setText("aaaaaaaaaa");
-                    label1.setAutoscrolls(true);
-                    label1.setIconTextGap(0);
-                    cardContainer.add(label1);
+                    //---- switchCard ----
+                    switchCard.setText("Second card preview");
+                    switchCard.setEnabled(false);
+                    switchCard.setMaximumSize(new Dimension(170, 40));
+                    switchCard.setMinimumSize(new Dimension(170, 40));
+                    switchCard.setPreferredSize(new Dimension(170, 40));
+                    switchCard.addActionListener(e -> switchCardToSecond(e));
+                    dashboardHeader.add(switchCard, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 0, 5), 0, 0));
+
+                    //---- returnToFirstCard ----
+                    returnToFirstCard.setText("Go to the first card");
+                    returnToFirstCard.setMaximumSize(new Dimension(150, 40));
+                    returnToFirstCard.setMinimumSize(new Dimension(150, 40));
+                    returnToFirstCard.setPreferredSize(new Dimension(150, 40));
+                    returnToFirstCard.setEnabled(false);
+                    returnToFirstCard.addActionListener(e -> returnToFirstCard(e));
+                    dashboardHeader.add(returnToFirstCard, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 0, 0), 0, 0));
                 }
-                cardView.setViewportView(cardContainer);
+                dashboard.add(dashboardHeader, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 10, 5, 10), 0, 0));
+
+                //---- currentCardLabel ----
+                currentCardLabel.setText("Currrent card:");
+                currentCardLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 12));
+                dashboard.add(currentCardLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
+                    new Insets(0, 0, 5, 0), 0, 0));
+
+                //======== dashboardBody ========
+                {
+                    dashboardBody.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+                    dashboardBody.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+                    //======== cardBody ========
+                    {
+                        cardBody.setLayout(new GridBagLayout());
+                    }
+                    dashboardBody.setViewportView(cardBody);
+                }
+                dashboard.add(dashboardBody, new GridBagConstraints(0, 2, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 0, 5, 0), 0, 0));
+
+                //======== dashboardFooter ========
+                {
+                    dashboardFooter.setMinimumSize(new Dimension(30, 50));
+                    dashboardFooter.setPreferredSize(new Dimension(30, 50));
+                    dashboardFooter.setLayout(new GridBagLayout());
+                    ((GridBagLayout)dashboardFooter.getLayout()).columnWidths = new int[] {140, 55, 175, 0};
+                    ((GridBagLayout)dashboardFooter.getLayout()).rowHeights = new int[] {0, 0};
+                    ((GridBagLayout)dashboardFooter.getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
+                    ((GridBagLayout)dashboardFooter.getLayout()).rowWeights = new double[] {0.0, 1.0E-4};
+
+                    //---- diffrenceBorderSizeLabel ----
+                    diffrenceBorderSizeLabel.setText("Differences border size:");
+                    diffrenceBorderSizeLabel.setMaximumSize(new Dimension(160, 40));
+                    diffrenceBorderSizeLabel.setMinimumSize(new Dimension(0, 40));
+                    diffrenceBorderSizeLabel.setPreferredSize(new Dimension(145, 40));
+                    diffrenceBorderSizeLabel.setAlignmentX(0.5F);
+                    diffrenceBorderSizeLabel.setHorizontalAlignment(SwingConstants.LEFT);
+                    diffrenceBorderSizeLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 12));
+                    dashboardFooter.add(diffrenceBorderSizeLabel, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 0, 5), 0, 0));
+
+                    //---- borderSizeSpinner ----
+                    borderSizeSpinner.setModel(new SpinnerNumberModel(5, 1, 10, 1));
+                    borderSizeSpinner.setEnabled(false);
+                    borderSizeSpinner.addChangeListener(e -> borderSizeSpinnerStateChanged(e));
+                    dashboardFooter.add(borderSizeSpinner, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 0, 5), 0, 0));
+
+                    //---- button1 ----
+                    button1.setText("Remove all differences");
+                    button1.setMaximumSize(new Dimension(78, 40));
+                    button1.setMinimumSize(new Dimension(78, 40));
+                    button1.setPreferredSize(new Dimension(78, 40));
+                    button1.setEnabled(false);
+                    dashboardFooter.add(button1, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                        new Insets(0, 0, 0, 0), 0, 0));
+                }
+                dashboard.add(dashboardFooter, new GridBagConstraints(0, 3, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                    new Insets(0, 10, 0, 10), 0, 0));
             }
-            body.add(cardView, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.NONE,
+            body.add(dashboard, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
+                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 5), 0, 0));
 
             //======== levelDataManegment ========
@@ -242,7 +371,7 @@ public class WorkSpace extends JFrame {
             }
             body.add(levelDataManegment, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                 GridBagConstraints.WEST, GridBagConstraints.VERTICAL,
-                new Insets(0, 0, 0, 0), 0, 0));
+                new Insets(0, 10, 0, 10), 0, 0));
         }
         contentPane.add(body, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
             GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -296,7 +425,7 @@ public class WorkSpace extends JFrame {
 
     private void addCardFileFilter() {
         for (int i = 0; i < CARD_CHOOSER_FILTERS[0].length; i++) {
-            FileFilterExt eff = new FileFilterExt(CARD_CHOOSER_FILTERS[i][0],
+            FileChooserFilterExt eff = new FileChooserFilterExt(CARD_CHOOSER_FILTERS[i][0],
                     CARD_CHOOSER_FILTERS[i][1]);
             cardChooser.addChoosableFileFilter(eff);
         }
@@ -305,69 +434,201 @@ public class WorkSpace extends JFrame {
 
     // region BUTTONS
     private void selectWorkDirectory(ActionEvent e) {
+        if (IS_TEST) {
+            currentDirectoryAbsolutePath = "C:\\prj\\spot-the-difference\\Assets\\Sprites\\Cards";
+            workDirectoryLabel.setText(DIRECTORY_LABEL_TEMPLATE + currentDirectoryAbsolutePath);
+            selectFirstCard.setEnabled(true);
+            cardChooser.setCurrentDirectory(new File(currentDirectoryAbsolutePath));
+            loadExistingLevelsData(true);
+            return;
+        }
         if (directoryChooser.showOpenDialog(selectWorkDirectory) == JFileChooser.APPROVE_OPTION) {
+            if (!directoryChooser.getSelectedFile().toString().endsWith(CARDS_FOLDER)) {
+                JOptionPane.showMessageDialog(this, WARNING_MESSAGE_IF_NOT_CARDS_FOLDER,
+                        WARNING_TITLE_IF_NOT_CARDS_FOLDER, JOptionPane.ERROR_MESSAGE);
+                disableComponentsForSelectWorkDirectory();
+                return;
+            }
             currentDirectoryAbsolutePath = directoryChooser.getSelectedFile().toString();
             workDirectoryLabel.setText(DIRECTORY_LABEL_TEMPLATE + currentDirectoryAbsolutePath);
             selectFirstCard.setEnabled(true);
             cardChooser.setCurrentDirectory(new File(currentDirectoryAbsolutePath));
-//            prepareListExistingItems();
+            loadExistingLevelsData(true);
         } else {
-            selectFirstCard.setEnabled(false);
-            workDirectoryLabel.setText(DIRECTORY_LABEL_TEMPLATE + NOT_SELECTED);
-            currentDirectoryAbsolutePath = "";
+            disableComponentsForSelectWorkDirectory();
+        }
+        repaint();
+    }
+
+    private void disableComponentsForSelectWorkDirectory() {
+        selectFirstCard.setEnabled(false);
+        workDirectoryLabel.setText(DIRECTORY_LABEL_TEMPLATE + NOT_SELECTED);
+        currentDirectoryAbsolutePath = "";
+        loadExistingLevelsData(false);
+    }
+
+    private void loadExistingLevelsData(boolean status) {
+        DefaultListModel<String> model = new DefaultListModel<String>();
+        if (!status) {
+            listExistingLevelsData.setModel(model);
+            return;
         }
 
-        repaint();
+        int startLevelsDataFolder = currentDirectoryAbsolutePath.indexOf(MAIN_DIRECTORY) + MAIN_DIRECTORY.length();
+        String levelsDataAbsolutePath = currentDirectoryAbsolutePath.substring(0, startLevelsDataFolder) + LEVELS_DATA_PATH_AT_MAIN_DIRECTORY;
+        File folder = new File(levelsDataAbsolutePath);
+        FileFilterExt ffe = new FileFilterExt("asset", "Assets");
+        File[] listAssets = folder.listFiles(ffe);
+
+        for (int i = 0; i < listAssets.length; i++) {
+            String name = listAssets[i].getName();
+            model.add(i, name.replace(".asset", ""));
+        }
+
+        listExistingLevelsData.setModel(model);
+        countLevelsDataLabel.setText(COUNT_LEVELS_DATA_LABEL_TEMPLATE + model.size());
     }
 
     private void selectFirstCard(ActionEvent e) {
         if (cardChooser.showOpenDialog(cardChooser) == JFileChooser.APPROVE_OPTION) {
+            if (isIdenticalFiles(secondCard, cardChooser.getSelectedFile().getName())) {
+                disableComponentsForSelectFirstCard();
+                return;
+            }
             firstCard = cardChooser.getSelectedFile().getName();
             firstCardAbsolutePath = cardChooser.getSelectedFile().toString();
             firstCardLabel.setText(FIRST_CARD_LABEL_TEMPLATE + firstCard);
             try {
                 firstCardImage = ImageIO.read(cardChooser.getSelectedFile());
-//                drawCard();
+                drawCard();
                 selectSecondCard.setEnabled(true);
-//                cardIconLabel.setEnabled(true);
-//                addSecondCardChooser();
-//                prepareLevelData();
-            } catch (IOException ex) {
-                //
-            }
+                borderSizeSpinner.setEnabled(true);
+                if (secondCardImage != null) {
+                    switchCard.setEnabled(true);
+                }
+            } catch (IOException ignored) { }
         }
         else {
-            firstCardLabel.setText(FIRST_CARD_LABEL_TEMPLATE + NOT_SELECTED);
-            firstCard = "";
-            firstCardAbsolutePath = "";
-            firstCardImage = null;
+            disableComponentsForSelectFirstCard();
         }
-
         repaint();
+    }
+
+    private void disableComponentsForSelectFirstCard() {
+        firstCardLabel.setText(FIRST_CARD_LABEL_TEMPLATE + NOT_SELECTED);
+        firstCard = "";
+        firstCardAbsolutePath = "";
+        firstCardImage = null;
+        cardBody.remove(cardIconLabel);
+        cardBody.validate();
+        cardIconLabel.setIcon(null);
+        cardIconLabel = null;
+        switchCard.setEnabled(false);
+        selectSecondCard.setEnabled(false);
+        borderSizeSpinner.setEnabled(false);
+        returnToFirstCard.setEnabled(false);
+        currentViewImage = -1;
     }
 
     private void selectSecondCard(ActionEvent e) {
         if (cardChooser.showOpenDialog(cardChooser) == JFileChooser.APPROVE_OPTION) {
+            if (isIdenticalFiles(firstCard, cardChooser.getSelectedFile().getName())) {
+                disableComponentsForSelectSecondCard();
+                return;
+            }
             secondCard = cardChooser.getSelectedFile().getName();
             secondCardAbsolutePath = cardChooser.getSelectedFile().toString();
             secondCardLabel.setText(SECOND_CARD_LABEL_TEMPLATE + secondCard);
-//            try {
-//                firstCardImage = ImageIO.read(cardChooser.getSelectedFile());
-//                drawCard();
-//                selectSecondCard.setEnabled(true);
-//                cardIconLabel.setEnabled(true);
-//                addSecondCardChooser();
-//                prepareLevelData();
-//            } catch (IOException ex) {
-                //
-//            }
+            try {
+                secondCardImage = ImageIO.read(cardChooser.getSelectedFile());
+                switchCard.setEnabled(true);
+            } catch (IOException ignored) { }
         }
         else {
-            secondCardLabel.setText(SECOND_CARD_LABEL_TEMPLATE + NOT_SELECTED);
-            secondCard = "";
-            secondCardAbsolutePath = "";
+            disableComponentsForSelectSecondCard();
         }
+        repaint();
+    }
 
+    private void disableComponentsForSelectSecondCard() {
+        secondCardLabel.setText(SECOND_CARD_LABEL_TEMPLATE + NOT_SELECTED);
+        secondCard = "";
+        secondCardAbsolutePath = "";
+        switchCard.setEnabled(false);
+        returnToFirstCard.setEnabled(false);
+        if (firstCardImage != null && currentViewImage != 0 && cardIconLabel != null) {
+            currentViewImage = 0;
+            cardIconLabel.setIcon(new ImageIcon(firstCardImage));
+            cardIconLabel.setSize(firstCardImage.getWidth(), firstCardImage.getHeight());
+            currentCardLabel.setText(CURRENT_CARD_LABEL_TEMPLATE + firstCard);
+        }
+    }
+
+    private boolean isIdenticalFiles(String firstFile, String secondFile) {
+        if (firstFile.equals(secondFile)) {
+            JOptionPane.showMessageDialog(this, WARNING_MESSAGE_IF_EQUALS_FILES,
+                    WARNING_TITLE_IF_EQUALS_FILES, JOptionPane.ERROR_MESSAGE);
+            return true;
+        }
+        return false;
+    }
+
+    private void borderSizeSpinnerStateChanged(ChangeEvent e) {
+        if (cardIconLabel == null) {
+            return;
+        }
+        var source = (JSpinner) e.getSource();
+        var value = (int) source.getValue();
+        cardIconLabel.setNewBorderSize(value);
+        repaint();
+    }
+
+    private void switchCardToSecond(ActionEvent e) {
+        if (cardIconLabel == null) {
+            return;
+        }
+        ImageIcon cardIcon = new ImageIcon(secondCardImage);
+        cardIconLabel.setIcon(cardIcon);
+        cardIconLabel.setSize(secondCardImage.getWidth(), secondCardImage.getHeight());
+        returnToFirstCard.setEnabled(true);
+        switchCard.setEnabled(false);
+        currentCardLabel.setText(CURRENT_CARD_LABEL_TEMPLATE + secondCard);
+        currentViewImage = 1;
+        repaint();
+    }
+
+    private void returnToFirstCard(ActionEvent e) {
+        if (cardIconLabel == null) {
+            return;
+        }
+        ImageIcon cardIcon = new ImageIcon(firstCardImage);
+        cardIconLabel.setIcon(cardIcon);
+        cardIconLabel.setSize(firstCardImage.getWidth(), firstCardImage.getHeight());
+        returnToFirstCard.setEnabled(false);
+        switchCard.setEnabled(true);
+        currentCardLabel.setText(CURRENT_CARD_LABEL_TEMPLATE + firstCard);
+        currentViewImage = 0;
+        repaint();
+    }
+    // endregion
+
+    // region CARD_VIEW
+    private void drawCard() {
+        cardIconLabel = new DrawingPanel();
+        DraggableAndResizableComponent.thickness = (int) borderSizeSpinner.getValue();
+        cardIconLabel.setAlignmentX(0.5F);
+        cardBody.add(
+                cardIconLabel,
+                new GridBagConstraints(
+                    0, 0, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.CENTER,
+                    GridBagConstraints.BOTH,
+                    new Insets(0, 0, 0, 0), 0, 0
+                )
+        );
+        ImageIcon cardIcon = new ImageIcon(firstCardImage);
+        cardIconLabel.setIcon(cardIcon);
+        cardIconLabel.setSize(firstCardImage.getWidth(), firstCardImage.getHeight());
         repaint();
     }
     // endregion

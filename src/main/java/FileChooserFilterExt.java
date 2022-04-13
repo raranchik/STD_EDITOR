@@ -1,8 +1,9 @@
-public class FileFilterExt implements java.io.FileFilter {
+class FileChooserFilterExt extends javax.swing.filechooser.FileFilter
+{
     String extension;
     String description;
 
-    FileFilterExt(String extension, String descr)
+    FileChooserFilterExt(String extension, String descr)
     {
         this.extension = extension;
         this.description = descr;
@@ -26,6 +27,11 @@ public class FileFilterExt implements java.io.FileFilter {
         }
 
         return false;
+    }
+
+    @Override
+    public String getDescription() {
+        return description;
     }
 
 }
