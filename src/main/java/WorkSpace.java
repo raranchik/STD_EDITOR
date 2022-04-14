@@ -10,14 +10,11 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
-import net.miginfocom.swing.*;
 
 public class WorkSpace extends JFrame {
     // region workSpace CONST
-    public static final String CARDS_FOLDER = "Cards";
-    public static final String MAIN_DIRECTORY = "Assets";
-    public static final String LEVELS_DATA_PATH_AT_MAIN_DIRECTORY = "\\ScriptableObject\\LevelData";
     public static final boolean IS_TEST = true;
+    public static final String CARDS_FOLDER_NAME = "Cards";
     public static final String NOT_SELECTED = "NOT SELECTED";
     public static final String DIRECTORY_CHOOSER_TITLE = "Select work directory";
     public static final String CARD_CHOOSER_TITLE = "Select card";
@@ -25,7 +22,6 @@ public class WorkSpace extends JFrame {
     public static final String FIRST_CARD_LABEL_TEMPLATE = "First card: ";
     public static final String SECOND_CARD_LABEL_TEMPLATE = "Second card: ";
     public static final String CURRENT_CARD_LABEL_TEMPLATE = "Current card: ";
-    public static final String COUNT_LEVELS_DATA_LABEL_TEMPLATE = "Count levels data: ";
     public static final String COUNT_DIFFERENCES_LABEL_TEMPLATE = "Count differences: ";
     public static final String WARNING_TITLE_IF_EQUALS_FILES = "Identical files";
     public static final String WARNING_MESSAGE_IF_EQUALS_FILES = "You selected the same image.";
@@ -435,7 +431,8 @@ public class WorkSpace extends JFrame {
     // region BUTTONS
     private void selectWorkDirectory(ActionEvent e) {
         if (IS_TEST) {
-            currentDirectoryAbsolutePath = "C:\\prj\\spot-the-difference\\Assets\\Sprites\\Cards";
+//            currentDirectoryAbsolutePath = "C:\\prj\\spot-the-difference\\Assets\\Sprites\\Cards";
+            currentDirectoryAbsolutePath = "/Users/ds27/Documents/GIT/Logic/Assets/STD/Sprites/Cards";
             workDirectoryLabel.setText(DIRECTORY_LABEL_TEMPLATE + currentDirectoryAbsolutePath);
             selectFirstCard.setEnabled(true);
             cardChooser.setCurrentDirectory(new File(currentDirectoryAbsolutePath));
@@ -443,7 +440,7 @@ public class WorkSpace extends JFrame {
             return;
         }
         if (directoryChooser.showOpenDialog(selectWorkDirectory) == JFileChooser.APPROVE_OPTION) {
-            if (!directoryChooser.getSelectedFile().toString().endsWith(CARDS_FOLDER)) {
+            if (!directoryChooser.getSelectedFile().toString().endsWith(CARDS_FOLDER_NAME)) {
                 JOptionPane.showMessageDialog(this, WARNING_MESSAGE_IF_NOT_CARDS_FOLDER,
                         WARNING_TITLE_IF_NOT_CARDS_FOLDER, JOptionPane.ERROR_MESSAGE);
                 disableComponentsForSelectWorkDirectory();
@@ -474,19 +471,7 @@ public class WorkSpace extends JFrame {
             return;
         }
 
-        int startLevelsDataFolder = currentDirectoryAbsolutePath.indexOf(MAIN_DIRECTORY) + MAIN_DIRECTORY.length();
-        String levelsDataAbsolutePath = currentDirectoryAbsolutePath.substring(0, startLevelsDataFolder) + LEVELS_DATA_PATH_AT_MAIN_DIRECTORY;
-        File folder = new File(levelsDataAbsolutePath);
-        FileFilterExt ffe = new FileFilterExt("asset", "Assets");
-        File[] listAssets = folder.listFiles(ffe);
-
-        for (int i = 0; i < listAssets.length; i++) {
-            String name = listAssets[i].getName();
-            model.add(i, name.replace(".asset", ""));
-        }
-
-        listExistingLevelsData.setModel(model);
-        countLevelsDataLabel.setText(COUNT_LEVELS_DATA_LABEL_TEMPLATE + model.size());
+        new LevelsDataPreparer(listExistingLevelsData, countLevelsDataLabel, currentDirectoryAbsolutePath);
     }
 
     private void selectFirstCard(ActionEvent e) {
