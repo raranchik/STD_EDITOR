@@ -29,6 +29,7 @@ class DrawingListener extends MouseAdapter {
         source.add(source.curDragComponent);
         source.isDrawing = false;
         source.repaint();
+        source.updateList();
     }
 
 }

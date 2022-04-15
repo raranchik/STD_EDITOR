@@ -6,7 +6,6 @@ import java.util.ArrayList;
 public class DrawingPanel extends JLabel {
     public final Color DRAWING_PANEL_BORDER_COLOR = Color.BLACK;
     public final Color DIFFERENCES_DRAWING_BORDER_COLOR = Color.GREEN;
-    public final Color DIFFERENCES_DRAGGABLE_BORDER_COLOR = Color.BLACK;
     public final int DRAWING_PANEL_BORDER_THICKNESS = 5;
 
     public ArrayList<DraggableAndResizableComponent> dragComponents = new ArrayList<DraggableAndResizableComponent>();
@@ -14,12 +13,16 @@ public class DrawingPanel extends JLabel {
     public BasicStroke dragCompStroke = new BasicStroke(DraggableAndResizableComponent.thickness);
     public LineBorder border = new LineBorder(DRAWING_PANEL_BORDER_COLOR, DRAWING_PANEL_BORDER_THICKNESS);
     public boolean isDrawing = false;
+    public DefaultListModel<String> listModel = new DefaultListModel<>();
+    public JList listComponents;
 
-    DrawingPanel() {
+    DrawingPanel(JList aListComponents) {
+        listComponents = aListComponents;
         setBorder(border);
         DrawingListener drawingListener = new DrawingListener();
         addMouseListener(drawingListener);
         addMouseMotionListener(drawingListener);
+        updateList();
     }
 
     public void setNewBorderSize(int s) {
@@ -53,6 +56,16 @@ public class DrawingPanel extends JLabel {
         drawPerfectRect((Graphics2D) g, start, end);
         if (!isDrawing) {
             super.paintComponent(g);
+        }
+    }
+
+    public void updateList() {
+        if (dragComponents.isEmpty()) {
+            return;
+        }
+
+        for (int i = 0; i < dragComponents.size(); i++) {
+
         }
     }
 
