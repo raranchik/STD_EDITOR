@@ -2,10 +2,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 public class DraggableAndResizableComponent extends JComponent {
-    public static Color color = Color.red;
     public static int thickness = 5;
 
     public Vector2DPixel position = new Vector2DPixel();
@@ -15,9 +13,6 @@ public class DraggableAndResizableComponent extends JComponent {
     public ResizableBorder border = new ResizableBorder(8);
 
     public boolean opaque = false;
-    public boolean draggable = true;
-    public Point anchorPoint;
-    public boolean overbearing = true;
 
     public DraggableAndResizableComponent() {
         setEnabled(false);
@@ -121,12 +116,11 @@ public class DraggableAndResizableComponent extends JComponent {
     private void onRemove(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_DELETE:
-                remove();;
+                remove();
                 break;
 
             case KeyEvent.VK_BACK_SPACE:
                 remove();
-
                 break;
 
             default:

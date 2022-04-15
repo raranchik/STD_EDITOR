@@ -60,6 +60,7 @@ new FormModel {
 							name: "listExistingLevelsData"
 							"selectionMode": 0
 							"visibleRowCount": 26
+							addEvent( new FormEvent( "javax.swing.event.ListSelectionListener", "valueChanged", "listExistingLevelsDataValueChanged", true ) )
 						} )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 						"gridy": 1
@@ -150,7 +151,7 @@ new FormModel {
 						"hAlign": 5
 					} )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
-						"$columnSpecs": "135, 100, 175"
+						"$columnSpecs": "0, 0, 0"
 						"$rowSpecs": "0"
 						"$hGap": 5
 						"$alignTop": true
@@ -162,9 +163,9 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "diffrenceBorderSizeLabel"
 							"text": "Differences border size:"
-							"maximumSize": new java.awt.Dimension( 160, 40 )
-							"minimumSize": new java.awt.Dimension( 0, 40 )
-							"preferredSize": new java.awt.Dimension( 145, 40 )
+							"maximumSize": new java.awt.Dimension( 200, 40 )
+							"minimumSize": new java.awt.Dimension( 160, 40 )
+							"preferredSize": new java.awt.Dimension( 160, 40 )
 							"alignmentX": 0.5f
 							"horizontalAlignment": 2
 							"font": new java.awt.Font( "Dialog", 1, 12 )
@@ -179,6 +180,9 @@ new FormModel {
 							"paintTicks": true
 							"snapToTicks": true
 							"minorTickSpacing": 1
+							"maximumSize": new java.awt.Dimension( 300, 40 )
+							"minimumSize": new java.awt.Dimension( 200, 40 )
+							"preferredSize": new java.awt.Dimension( 250, 40 )
 							addEvent( new FormEvent( "javax.swing.event.ChangeListener", "stateChanged", "borderSizeSpinnerStateChanged", true ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 							"hAlign": 5
@@ -188,9 +192,9 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JButton" ) {
 							name: "removeDifferences"
 							"text": "Remove all differences"
-							"maximumSize": new java.awt.Dimension( 78, 40 )
-							"minimumSize": new java.awt.Dimension( 78, 40 )
-							"preferredSize": new java.awt.Dimension( 78, 40 )
+							"maximumSize": new java.awt.Dimension( 160, 40 )
+							"minimumSize": new java.awt.Dimension( 160, 40 )
+							"preferredSize": new java.awt.Dimension( 160, 40 )
 							"enabled": false
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 							"gridx": 2

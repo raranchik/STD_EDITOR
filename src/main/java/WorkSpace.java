@@ -1,11 +1,8 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.beans.*;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
-import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -26,6 +23,8 @@ public class WorkSpace extends JFrame {
     public static final String WARNING_TITLE_IF_EQUALS_FILES = "Identical files";
     public static final String WARNING_MESSAGE_IF_EQUALS_FILES = "You selected the same image.";
     public static final String WARNING_TITLE_IF_NOT_CARDS_FOLDER = "Incorrect directory";
+    public static final String WARNING_TITLE_IF_SELECT_LEVEL_EMPTY = "Level data empty";
+    public static final String WARNING_MESSAGE_IF_SELECT_LEVEL_EMPTY = "There are no images for the selected data";
     public static final String WARNING_MESSAGE_IF_NOT_CARDS_FOLDER = "You have selected the wrong directory." +
             " Select the directory with the cards.";
     public final String[][] CARD_CHOOSER_FILTERS = {
@@ -46,6 +45,7 @@ public class WorkSpace extends JFrame {
     private String secondCardAbsolutePath = "";
     private DrawingPanel cardIconLabel = null;
     private int currentViewImage = -1;
+    private LevelsDataPreparer levelsPreparer = null;
     // endregion
 
     // JFormDesigner - Variables declaration - DO NOT MODIFY  //GEN-BEGIN:variables
@@ -169,6 +169,7 @@ public class WorkSpace extends JFrame {
                     //---- listExistingLevelsData ----
                     listExistingLevelsData.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                     listExistingLevelsData.setVisibleRowCount(26);
+                    listExistingLevelsData.addListSelectionListener(e -> listExistingLevelsDataValueChanged(e));
                     scrollPane1.setViewportView(listExistingLevelsData);
                 }
                 levelsDataView.add(scrollPane1, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
@@ -257,16 +258,16 @@ public class WorkSpace extends JFrame {
                     dashboardFooter.setMinimumSize(new Dimension(30, 50));
                     dashboardFooter.setPreferredSize(new Dimension(30, 50));
                     dashboardFooter.setLayout(new GridBagLayout());
-                    ((GridBagLayout)dashboardFooter.getLayout()).columnWidths = new int[] {140, 105, 175, 0};
+                    ((GridBagLayout)dashboardFooter.getLayout()).columnWidths = new int[] {0, 0, 0, 0};
                     ((GridBagLayout)dashboardFooter.getLayout()).rowHeights = new int[] {0, 0};
                     ((GridBagLayout)dashboardFooter.getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
                     ((GridBagLayout)dashboardFooter.getLayout()).rowWeights = new double[] {0.0, 1.0E-4};
 
                     //---- diffrenceBorderSizeLabel ----
                     diffrenceBorderSizeLabel.setText("Differences border size:");
-                    diffrenceBorderSizeLabel.setMaximumSize(new Dimension(160, 40));
-                    diffrenceBorderSizeLabel.setMinimumSize(new Dimension(0, 40));
-                    diffrenceBorderSizeLabel.setPreferredSize(new Dimension(145, 40));
+                    diffrenceBorderSizeLabel.setMaximumSize(new Dimension(200, 40));
+                    diffrenceBorderSizeLabel.setMinimumSize(new Dimension(160, 40));
+                    diffrenceBorderSizeLabel.setPreferredSize(new Dimension(160, 40));
                     diffrenceBorderSizeLabel.setAlignmentX(0.5F);
                     diffrenceBorderSizeLabel.setHorizontalAlignment(SwingConstants.LEFT);
                     diffrenceBorderSizeLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 12));
@@ -283,6 +284,9 @@ public class WorkSpace extends JFrame {
                     borderSizeSpinner.setPaintTicks(true);
                     borderSizeSpinner.setSnapToTicks(true);
                     borderSizeSpinner.setMinorTickSpacing(1);
+                    borderSizeSpinner.setMaximumSize(new Dimension(300, 40));
+                    borderSizeSpinner.setMinimumSize(new Dimension(200, 40));
+                    borderSizeSpinner.setPreferredSize(new Dimension(250, 40));
                     borderSizeSpinner.addChangeListener(e -> borderSizeSpinnerStateChanged(e));
                     dashboardFooter.add(borderSizeSpinner, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -290,9 +294,9 @@ public class WorkSpace extends JFrame {
 
                     //---- removeDifferences ----
                     removeDifferences.setText("Remove all differences");
-                    removeDifferences.setMaximumSize(new Dimension(78, 40));
-                    removeDifferences.setMinimumSize(new Dimension(78, 40));
-                    removeDifferences.setPreferredSize(new Dimension(78, 40));
+                    removeDifferences.setMaximumSize(new Dimension(160, 40));
+                    removeDifferences.setMinimumSize(new Dimension(160, 40));
+                    removeDifferences.setPreferredSize(new Dimension(160, 40));
                     removeDifferences.setEnabled(false);
                     dashboardFooter.add(removeDifferences, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -437,9 +441,9 @@ public class WorkSpace extends JFrame {
     // region BUTTONS
     private void selectWorkDirectory(ActionEvent e) {
         if (IS_TEST) {
-            currentDirectoryAbsolutePath = "C:\\prj\\spot-the-difference\\Assets\\Sprites\\Cards";
-//            currentDirectoryAbsolutePath = "/Users/ds27/Documents/GIT/Logic/Assets/STD/Sprites/Cards";
-            workDirectoryLabel.setText(DIRECTORY_LABEL_TEMPLATE + currentDirectoryAbsolutePath);
+//            currentDirectoryAbsolutePath = "C:\\prj\\spot-the-difference\\Assets\\Sprites\\Cards";
+            currentDirectoryAbsolutePath = "/Users/ds27/Documents/GIT/Logic/Assets/STD/Sprites/Cards";
+            updateLabel(workDirectoryLabel, DIRECTORY_LABEL_TEMPLATE, currentDirectoryAbsolutePath);
             selectFirstCard.setEnabled(true);
             cardChooser.setCurrentDirectory(new File(currentDirectoryAbsolutePath));
             loadExistingLevelsData(true);
@@ -453,7 +457,7 @@ public class WorkSpace extends JFrame {
                 return;
             }
             currentDirectoryAbsolutePath = directoryChooser.getSelectedFile().toString();
-            workDirectoryLabel.setText(DIRECTORY_LABEL_TEMPLATE + currentDirectoryAbsolutePath);
+            updateLabel(workDirectoryLabel, DIRECTORY_LABEL_TEMPLATE, currentDirectoryAbsolutePath);
             selectFirstCard.setEnabled(true);
             cardChooser.setCurrentDirectory(new File(currentDirectoryAbsolutePath));
             loadExistingLevelsData(true);
@@ -464,10 +468,11 @@ public class WorkSpace extends JFrame {
     }
 
     private void disableComponentsForSelectWorkDirectory() {
-        selectFirstCard.setEnabled(false);
-        workDirectoryLabel.setText(DIRECTORY_LABEL_TEMPLATE + NOT_SELECTED);
         currentDirectoryAbsolutePath = "";
+        updateLabel(workDirectoryLabel, DIRECTORY_LABEL_TEMPLATE, NOT_SELECTED);
         loadExistingLevelsData(false);
+        disableComponentsForSelectFirstCard();
+        disableComponentsForSelectSecondCard();
     }
 
     private void loadExistingLevelsData(boolean status) {
@@ -477,7 +482,7 @@ public class WorkSpace extends JFrame {
             return;
         }
 
-        new LevelsDataPreparer(listExistingLevelsData, countLevelsDataLabel, currentDirectoryAbsolutePath);
+        levelsPreparer = new LevelsDataPreparer(listExistingLevelsData, countLevelsDataLabel, currentDirectoryAbsolutePath);
     }
 
     private void selectFirstCard(ActionEvent e) {
@@ -487,22 +492,14 @@ public class WorkSpace extends JFrame {
                 disableComponentsForSelectSecondCard();
                 return;
             }
+            if (!listExistingLevelsData.isSelectionEmpty()) {
+                listExistingLevelsData.clearSelection();
+            }
             if (secondCard != null) {
                 disableComponentsForSelectFirstCard();
                 disableComponentsForSelectSecondCard();
             }
-            firstCard = cardChooser.getSelectedFile().getName();
-            firstCardAbsolutePath = cardChooser.getSelectedFile().toString();
-            firstCardLabel.setText(FIRST_CARD_LABEL_TEMPLATE + firstCard);
-            try {
-                firstCardImage = ImageIO.read(cardChooser.getSelectedFile());
-                drawCard();
-                selectSecondCard.setEnabled(true);
-                borderSizeSpinner.setEnabled(true);
-                if (secondCardImage != null) {
-                    switchCard.setEnabled(true);
-                }
-            } catch (IOException ignored) { }
+            enableComponentsForSelectFirstCard(false);
         }
         else {
             disableComponentsForSelectFirstCard();
@@ -511,8 +508,35 @@ public class WorkSpace extends JFrame {
         repaint();
     }
 
+    private void updateLabel(JLabel label, String template, String message) {
+        label.setText(template + message);
+    }
+
+    private void enableComponentsForSelectFirstCard(boolean dontOverride) {
+        selectSecondCard.setEnabled(true);
+        borderSizeSpinner.setEnabled(true);
+        if (secondCardImage != null) {
+            switchCard.setEnabled(true);
+        }
+        if (dontOverride) {
+            updateLabel(currentCardLabel, CURRENT_CARD_LABEL_TEMPLATE, firstCard);
+            updateLabel(firstCardLabel, FIRST_CARD_LABEL_TEMPLATE, firstCard);
+            repaint();
+            return;
+        }
+        firstCard = cardChooser.getSelectedFile().getName();
+        firstCardAbsolutePath = cardChooser.getSelectedFile().toString();
+        try {
+            firstCardImage = ImageIO.read(cardChooser.getSelectedFile());
+            drawCard();
+            updateLabel(currentCardLabel, CURRENT_CARD_LABEL_TEMPLATE, firstCard);
+            updateLabel(firstCardLabel, FIRST_CARD_LABEL_TEMPLATE, firstCard);
+            repaint();
+        } catch (IOException ignored) { }
+    }
+
     private void disableComponentsForSelectFirstCard() {
-        firstCardLabel.setText(FIRST_CARD_LABEL_TEMPLATE + NOT_SELECTED);
+        updateLabel(firstCardLabel, FIRST_CARD_LABEL_TEMPLATE, NOT_SELECTED);
         firstCard = "";
         firstCardAbsolutePath = "";
         firstCardImage = null;
@@ -536,13 +560,7 @@ public class WorkSpace extends JFrame {
                 disableComponentsForSelectSecondCard();
                 return;
             }
-            secondCard = cardChooser.getSelectedFile().getName();
-            secondCardAbsolutePath = cardChooser.getSelectedFile().toString();
-            secondCardLabel.setText(SECOND_CARD_LABEL_TEMPLATE + secondCard);
-            try {
-                secondCardImage = ImageIO.read(cardChooser.getSelectedFile());
-                switchCard.setEnabled(true);
-            } catch (IOException ignored) { }
+            enableComponentsForSelectSecondCard(false);
         }
         else {
             disableComponentsForSelectSecondCard();
@@ -550,8 +568,24 @@ public class WorkSpace extends JFrame {
         repaint();
     }
 
+    private void enableComponentsForSelectSecondCard(boolean dontOverride) {
+        switchCard.setEnabled(true);
+        if (dontOverride) {
+            updateLabel(secondCardLabel, SECOND_CARD_LABEL_TEMPLATE, secondCard);
+            repaint();
+            return;
+        }
+        secondCard = cardChooser.getSelectedFile().getName();
+        secondCardAbsolutePath = cardChooser.getSelectedFile().toString();
+        try {
+            updateLabel(secondCardLabel, SECOND_CARD_LABEL_TEMPLATE, secondCard);
+            secondCardImage = ImageIO.read(cardChooser.getSelectedFile());
+            repaint();
+        } catch (IOException ignored) { }
+    }
+
     private void disableComponentsForSelectSecondCard() {
-        secondCardLabel.setText(SECOND_CARD_LABEL_TEMPLATE + NOT_SELECTED);
+        updateLabel(secondCardLabel, SECOND_CARD_LABEL_TEMPLATE, NOT_SELECTED);
         secondCard = "";
         secondCardAbsolutePath = "";
         secondCardImage = null;
@@ -562,13 +596,13 @@ public class WorkSpace extends JFrame {
             currentViewImage = 0;
             cardIconLabel.setIcon(new ImageIcon(firstCardImage));
             cardIconLabel.setSize(firstCardImage.getWidth(), firstCardImage.getHeight());
-            currentCardLabel.setText(CURRENT_CARD_LABEL_TEMPLATE + firstCard);
+            updateLabel(currentCardLabel, CURRENT_CARD_LABEL_TEMPLATE, firstCard);
         }
         repaint();
     }
 
     private boolean isIdenticalFiles(String firstFile, String secondFile) {
-        if (firstFile.equals(secondFile)) {
+        if (firstFile.equals(secondFile) && listExistingLevelsData.isSelectionEmpty()) {
             JOptionPane.showMessageDialog(this, WARNING_MESSAGE_IF_EQUALS_FILES,
                     WARNING_TITLE_IF_EQUALS_FILES, JOptionPane.ERROR_MESSAGE);
             return true;
@@ -598,7 +632,7 @@ public class WorkSpace extends JFrame {
         cardIconLabel.setSize(secondCardImage.getWidth(), secondCardImage.getHeight());
         returnToFirstCard.setEnabled(true);
         switchCard.setEnabled(false);
-        currentCardLabel.setText(CURRENT_CARD_LABEL_TEMPLATE + secondCard);
+        updateLabel(currentCardLabel, CURRENT_CARD_LABEL_TEMPLATE, secondCard);
         currentViewImage = 1;
         repaint();
     }
@@ -612,9 +646,45 @@ public class WorkSpace extends JFrame {
         cardIconLabel.setSize(firstCardImage.getWidth(), firstCardImage.getHeight());
         returnToFirstCard.setEnabled(false);
         switchCard.setEnabled(true);
-        currentCardLabel.setText(CURRENT_CARD_LABEL_TEMPLATE + firstCard);
+        updateLabel(currentCardLabel, CURRENT_CARD_LABEL_TEMPLATE, firstCard);
         currentViewImage = 0;
         repaint();
+    }
+
+    private void listExistingLevelsDataValueChanged(ListSelectionEvent e) {
+        if (!e.getValueIsAdjusting()) {
+            try {
+                int i = listExistingLevelsData.getSelectedIndex();
+                if (levelsPreparer.currentSelect == i || i == -1) {
+                    return;
+                }
+                levelsPreparer.currentSelect = i;
+                var l = levelsPreparer.levels.get(i);
+                firstCardAbsolutePath = l.firstCardAbsolutePath;
+                secondCardAbsolutePath = l.secondCardAbsolutePath;
+                if (firstCardAbsolutePath.isEmpty() || secondCardAbsolutePath.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, WARNING_MESSAGE_IF_SELECT_LEVEL_EMPTY,
+                            WARNING_TITLE_IF_SELECT_LEVEL_EMPTY, JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                File file = null;
+                if (!secondCardAbsolutePath.isEmpty()) {
+                    file = new File(secondCardAbsolutePath);
+                    secondCardImage = ImageIO.read(file);
+                    secondCard = file.getName();
+                }
+                else {
+                    disableComponentsForSelectSecondCard();
+                }
+                file = new File(firstCardAbsolutePath);
+                firstCardImage = ImageIO.read(file);
+                firstCard = file.getName();
+                drawCard();
+                enableComponentsForSelectFirstCard(true);
+                enableComponentsForSelectSecondCard(true);
+            } catch (IOException ignored) {
+            }
+        }
     }
     // endregion
 
@@ -625,7 +695,7 @@ public class WorkSpace extends JFrame {
             revalidate();
             repaint();
         }
-        cardIconLabel = new DrawingPanel();
+        cardIconLabel = new DrawingPanel(differencesList);
         DraggableAndResizableComponent.thickness = (int) borderSizeSpinner.getValue();
         cardIconLabel.setAlignmentX(0.5F);
         cardBody.add(
