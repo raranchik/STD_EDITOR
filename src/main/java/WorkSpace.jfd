@@ -150,7 +150,7 @@ new FormModel {
 						"hAlign": 5
 					} )
 					add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
-						"$columnSpecs": "135, 50, 175"
+						"$columnSpecs": "135, 100, 175"
 						"$rowSpecs": "0"
 						"$hGap": 5
 						"$alignTop": true
@@ -169,10 +169,16 @@ new FormModel {
 							"horizontalAlignment": 2
 							"font": new java.awt.Font( "Dialog", 1, 12 )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
-						add( new FormComponent( "javax.swing.JSpinner" ) {
+						add( new FormComponent( "javax.swing.JSlider" ) {
 							name: "borderSizeSpinner"
-							"model": new javax.swing.SpinnerNumberModel( 5, 1, 10, 1 )
+							"value": 5
+							"maximum": 15
 							"enabled": false
+							"majorTickSpacing": 5
+							"paintLabels": true
+							"paintTicks": true
+							"snapToTicks": true
+							"minorTickSpacing": 1
 							addEvent( new FormEvent( "javax.swing.event.ChangeListener", "stateChanged", "borderSizeSpinnerStateChanged", true ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 							"hAlign": 5
@@ -180,7 +186,7 @@ new FormModel {
 							"gridx": 1
 						} )
 						add( new FormComponent( "javax.swing.JButton" ) {
-							name: "button1"
+							name: "removeDifferences"
 							"text": "Remove all differences"
 							"maximumSize": new java.awt.Dimension( 78, 40 )
 							"minimumSize": new java.awt.Dimension( 78, 40 )

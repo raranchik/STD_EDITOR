@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
-public class Card {
-    public ArrayList<Difference> differences = new ArrayList<Difference>();
+public class LevelDataTemp {
+    public ArrayList<DifferenceTemp> differences = new ArrayList<DifferenceTemp>();
     public String firstCardAbsolutePath = "";
     public String secondCardAbsolutePath = "";
 }

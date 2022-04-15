@@ -1,5 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 public class DraggableAndResizableComponent extends JComponent {
     public static Color color = Color.red;
@@ -29,6 +32,13 @@ public class DraggableAndResizableComponent extends JComponent {
         DraggableAndResizableListener resizeListener = new DraggableAndResizableListener();
         addMouseListener(resizeListener);
         addMouseMotionListener(resizeListener);
+
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                onRemove(e);
+            }
+        });
     }
 
     public void release() {
@@ -106,6 +116,29 @@ public class DraggableAndResizableComponent extends JComponent {
 
         position.x = (startDraw.x + endDraw.x) / 2;
         position.y = (startDraw.y + endDraw.y) / 2;
+    }
+
+    private void onRemove(KeyEvent e) {
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_DELETE:
+                remove();;
+                break;
+
+            case KeyEvent.VK_BACK_SPACE:
+                remove();
+
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    private void remove() {
+        var parent = (DrawingPanel) getParent();
+        parent.dragComponents.remove(this);
+        parent.remove(this);
+        parent.repaint();
     }
 
 }

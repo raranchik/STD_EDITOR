@@ -65,8 +65,8 @@ public class WorkSpace extends JFrame {
     private JPanel cardBody;
     private JPanel dashboardFooter;
     private JLabel diffrenceBorderSizeLabel;
-    private JSpinner borderSizeSpinner;
-    private JButton button1;
+    private JSlider borderSizeSpinner;
+    private JButton removeDifferences;
     private JPanel levelDataManegment;
     private JButton selectFirstCard;
     private JLabel firstCardLabel;
@@ -103,8 +103,8 @@ public class WorkSpace extends JFrame {
         cardBody = new JPanel();
         dashboardFooter = new JPanel();
         diffrenceBorderSizeLabel = new JLabel();
-        borderSizeSpinner = new JSpinner();
-        button1 = new JButton();
+        borderSizeSpinner = new JSlider();
+        removeDifferences = new JButton();
         levelDataManegment = new JPanel();
         selectFirstCard = new JButton();
         firstCardLabel = new JLabel();
@@ -257,7 +257,7 @@ public class WorkSpace extends JFrame {
                     dashboardFooter.setMinimumSize(new Dimension(30, 50));
                     dashboardFooter.setPreferredSize(new Dimension(30, 50));
                     dashboardFooter.setLayout(new GridBagLayout());
-                    ((GridBagLayout)dashboardFooter.getLayout()).columnWidths = new int[] {140, 55, 175, 0};
+                    ((GridBagLayout)dashboardFooter.getLayout()).columnWidths = new int[] {140, 105, 175, 0};
                     ((GridBagLayout)dashboardFooter.getLayout()).rowHeights = new int[] {0, 0};
                     ((GridBagLayout)dashboardFooter.getLayout()).columnWeights = new double[] {0.0, 0.0, 0.0, 1.0E-4};
                     ((GridBagLayout)dashboardFooter.getLayout()).rowWeights = new double[] {0.0, 1.0E-4};
@@ -275,20 +275,26 @@ public class WorkSpace extends JFrame {
                         new Insets(0, 0, 0, 5), 0, 0));
 
                     //---- borderSizeSpinner ----
-                    borderSizeSpinner.setModel(new SpinnerNumberModel(5, 1, 10, 1));
+                    borderSizeSpinner.setValue(5);
+                    borderSizeSpinner.setMaximum(15);
                     borderSizeSpinner.setEnabled(false);
+                    borderSizeSpinner.setMajorTickSpacing(5);
+                    borderSizeSpinner.setPaintLabels(true);
+                    borderSizeSpinner.setPaintTicks(true);
+                    borderSizeSpinner.setSnapToTicks(true);
+                    borderSizeSpinner.setMinorTickSpacing(1);
                     borderSizeSpinner.addChangeListener(e -> borderSizeSpinnerStateChanged(e));
                     dashboardFooter.add(borderSizeSpinner, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         new Insets(0, 0, 0, 5), 0, 0));
 
-                    //---- button1 ----
-                    button1.setText("Remove all differences");
-                    button1.setMaximumSize(new Dimension(78, 40));
-                    button1.setMinimumSize(new Dimension(78, 40));
-                    button1.setPreferredSize(new Dimension(78, 40));
-                    button1.setEnabled(false);
-                    dashboardFooter.add(button1, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
+                    //---- removeDifferences ----
+                    removeDifferences.setText("Remove all differences");
+                    removeDifferences.setMaximumSize(new Dimension(78, 40));
+                    removeDifferences.setMinimumSize(new Dimension(78, 40));
+                    removeDifferences.setPreferredSize(new Dimension(78, 40));
+                    removeDifferences.setEnabled(false);
+                    dashboardFooter.add(removeDifferences, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                         new Insets(0, 0, 0, 0), 0, 0));
                 }
@@ -431,8 +437,8 @@ public class WorkSpace extends JFrame {
     // region BUTTONS
     private void selectWorkDirectory(ActionEvent e) {
         if (IS_TEST) {
-//            currentDirectoryAbsolutePath = "C:\\prj\\spot-the-difference\\Assets\\Sprites\\Cards";
-            currentDirectoryAbsolutePath = "/Users/ds27/Documents/GIT/Logic/Assets/STD/Sprites/Cards";
+            currentDirectoryAbsolutePath = "C:\\prj\\spot-the-difference\\Assets\\Sprites\\Cards";
+//            currentDirectoryAbsolutePath = "/Users/ds27/Documents/GIT/Logic/Assets/STD/Sprites/Cards";
             workDirectoryLabel.setText(DIRECTORY_LABEL_TEMPLATE + currentDirectoryAbsolutePath);
             selectFirstCard.setEnabled(true);
             cardChooser.setCurrentDirectory(new File(currentDirectoryAbsolutePath));
@@ -478,7 +484,12 @@ public class WorkSpace extends JFrame {
         if (cardChooser.showOpenDialog(cardChooser) == JFileChooser.APPROVE_OPTION) {
             if (isIdenticalFiles(secondCard, cardChooser.getSelectedFile().getName())) {
                 disableComponentsForSelectFirstCard();
+                disableComponentsForSelectSecondCard();
                 return;
+            }
+            if (secondCard != null) {
+                disableComponentsForSelectFirstCard();
+                disableComponentsForSelectSecondCard();
             }
             firstCard = cardChooser.getSelectedFile().getName();
             firstCardAbsolutePath = cardChooser.getSelectedFile().toString();
@@ -495,6 +506,7 @@ public class WorkSpace extends JFrame {
         }
         else {
             disableComponentsForSelectFirstCard();
+            disableComponentsForSelectSecondCard();
         }
         repaint();
     }
@@ -504,15 +516,18 @@ public class WorkSpace extends JFrame {
         firstCard = "";
         firstCardAbsolutePath = "";
         firstCardImage = null;
-        cardBody.remove(cardIconLabel);
-        cardBody.validate();
-        cardIconLabel.setIcon(null);
-        cardIconLabel = null;
+        if (cardIconLabel != null) {
+            cardBody.remove(cardIconLabel);
+            cardBody.revalidate();
+            cardBody.repaint();
+            cardIconLabel = null;
+        }
         switchCard.setEnabled(false);
+        returnToFirstCard.setEnabled(false);
         selectSecondCard.setEnabled(false);
         borderSizeSpinner.setEnabled(false);
-        returnToFirstCard.setEnabled(false);
         currentViewImage = -1;
+        repaint();
     }
 
     private void selectSecondCard(ActionEvent e) {
@@ -539,14 +554,17 @@ public class WorkSpace extends JFrame {
         secondCardLabel.setText(SECOND_CARD_LABEL_TEMPLATE + NOT_SELECTED);
         secondCard = "";
         secondCardAbsolutePath = "";
+        secondCardImage = null;
         switchCard.setEnabled(false);
         returnToFirstCard.setEnabled(false);
+        borderSizeSpinner.setEnabled(false);
         if (firstCardImage != null && currentViewImage != 0 && cardIconLabel != null) {
             currentViewImage = 0;
             cardIconLabel.setIcon(new ImageIcon(firstCardImage));
             cardIconLabel.setSize(firstCardImage.getWidth(), firstCardImage.getHeight());
             currentCardLabel.setText(CURRENT_CARD_LABEL_TEMPLATE + firstCard);
         }
+        repaint();
     }
 
     private boolean isIdenticalFiles(String firstFile, String secondFile) {
@@ -562,8 +580,11 @@ public class WorkSpace extends JFrame {
         if (cardIconLabel == null) {
             return;
         }
-        var source = (JSpinner) e.getSource();
+        var source = (JSlider) e.getSource();
         var value = (int) source.getValue();
+        if (value <= 0) {
+            return;
+        }
         cardIconLabel.setNewBorderSize(value);
         repaint();
     }
@@ -599,6 +620,11 @@ public class WorkSpace extends JFrame {
 
     // region CARD_VIEW
     private void drawCard() {
+        if (cardIconLabel != null) {
+            cardBody.remove(cardIconLabel);
+            revalidate();
+            repaint();
+        }
         cardIconLabel = new DrawingPanel();
         DraggableAndResizableComponent.thickness = (int) borderSizeSpinner.getValue();
         cardIconLabel.setAlignmentX(0.5F);

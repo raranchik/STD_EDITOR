@@ -1,11 +1,13 @@
 public class FileFilterExt implements java.io.FileFilter {
     String extension;
     String description;
+    boolean checkMeta;
 
-    FileFilterExt(String extension, String descr)
+    FileFilterExt(String extension, String descr, boolean checkMeta)
     {
         this.extension = extension;
         this.description = descr;
+        this.checkMeta = checkMeta;
     }
 
     @Override
@@ -18,7 +20,7 @@ public class FileFilterExt implements java.io.FileFilter {
             if (extension == null) {
                 return (extension.length() == 0);
             }
-            if (file.getName().contains(".meta")) {
+            if (checkMeta && file.getName().contains(".meta")) {
                 return false;
             }
 
