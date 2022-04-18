@@ -1,28 +1,35 @@
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
+import javax.swing.event.ListSelectionEvent;
 import java.awt.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class DrawingPanel extends JLabel {
+    public final String COUNT_DIFFERENCES_LABEL_TEMPLATE = "Count differences: ";
     public final Color DRAWING_PANEL_BORDER_COLOR = Color.BLACK;
     public final Color DIFFERENCES_DRAWING_BORDER_COLOR = Color.GREEN;
     public final int DRAWING_PANEL_BORDER_THICKNESS = 5;
 
-    public ArrayList<DraggableAndResizableComponent> dragComponents = new ArrayList<DraggableAndResizableComponent>();
     public DraggableAndResizableComponent curDragComponent = null;
+    public ArrayList<DraggableAndResizableComponent> dragComponents = new ArrayList<DraggableAndResizableComponent>();
+    public JList listComponents;
+    public int lastIndex = 0;
     public BasicStroke dragCompStroke = new BasicStroke(DraggableAndResizableComponent.thickness);
     public LineBorder border = new LineBorder(DRAWING_PANEL_BORDER_COLOR, DRAWING_PANEL_BORDER_THICKNESS);
     public boolean isDrawing = false;
-    public DefaultListModel<String> listModel = new DefaultListModel<>();
-    public JList listComponents;
 
     DrawingPanel(JList aListComponents) {
         listComponents = aListComponents;
+        listComponents.clearSelection();
+        listComponents.setModel(new DefaultListModel());
+
         setBorder(border);
         DrawingListener drawingListener = new DrawingListener();
         addMouseListener(drawingListener);
         addMouseMotionListener(drawingListener);
-        updateList();
     }
 
     public void setNewBorderSize(int s) {
@@ -60,13 +67,22 @@ public class DrawingPanel extends JLabel {
     }
 
     public void updateList() {
-        if (dragComponents.isEmpty()) {
-            return;
-        }
-
+        var newModel = new DefaultListModel<String>();
         for (int i = 0; i < dragComponents.size(); i++) {
-
+            var c = dragComponents.get(i);
+            var d = c.difference;
+            var dName = String.format("%s%s", d.DIFFERENCE_NAME_TEMPLATE, d.index);
+            newModel.addElement(dName);
         }
+        listComponents.setModel(newModel);
+    }
+
+    public ArrayList<DifferenceTemp> getDifferences() {
+        var ds = new ArrayList<DifferenceTemp>();
+        for (var c: dragComponents) {
+            ds.add(c.difference);
+        }
+        return ds;
     }
 
 }

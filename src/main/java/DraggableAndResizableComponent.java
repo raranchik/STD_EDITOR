@@ -6,10 +6,11 @@ import java.awt.event.KeyEvent;
 public class DraggableAndResizableComponent extends JComponent {
     public static int thickness = 5;
 
-    public Vector2DPixel position = new Vector2DPixel();
-    public Vector2DPixel size = new Vector2DPixel();
-    public Vector2DPixel startDraw = new Vector2DPixel();
-    public Vector2DPixel endDraw = new Vector2DPixel();
+    public DifferenceTemp difference = new DifferenceTemp();
+    public Vector2DPixel position = new Vector2DPixel(0, 0);
+    public Vector2DPixel size = new Vector2DPixel(0,0);
+    public Vector2DPixel startDraw = new Vector2DPixel(0, 0);
+    public Vector2DPixel endDraw = new Vector2DPixel(0,0);
     public ResizableBorder border = new ResizableBorder(8);
 
     public boolean opaque = false;
@@ -43,6 +44,13 @@ public class DraggableAndResizableComponent extends JComponent {
         setVisible(true);
         validate();
         repaint();
+
+        var source = (DrawingPanel) getParent();
+        source.lastIndex++;
+        difference.index = source.lastIndex;
+        difference.size = size;
+        difference.position = position;
+        source.updateList();
     }
 
     public void setStartDraw(int x, int y) {
@@ -82,29 +90,19 @@ public class DraggableAndResizableComponent extends JComponent {
 
     private void calculatePositionOnRelease() {
         if (endDraw.x < startDraw.x && endDraw.y < startDraw.y) {
-            Vector2DPixel temp = new Vector2DPixel();
-            temp.x = endDraw.x;
-            temp.y = endDraw.y;
+            Vector2DPixel temp = new Vector2DPixel(endDraw.x, endDraw.y);
             endDraw = startDraw;
             startDraw = temp;
         }
         else if (endDraw.x > startDraw.x && endDraw.y < startDraw.y) {
-            Vector2DPixel temp = new Vector2DPixel();
-            temp.x = startDraw.x;
-            temp.y = endDraw.y;
-            Vector2DPixel temp1 = new Vector2DPixel();
-            temp1.x = endDraw.x;
-            temp1.y = startDraw.y;
+            Vector2DPixel temp = new Vector2DPixel(startDraw.x, endDraw.y);
+            Vector2DPixel temp1 = new Vector2DPixel(endDraw.x, startDraw.y);
             startDraw = temp;
             endDraw = temp1;
         }
         else if (endDraw.x < startDraw.x && endDraw.y > startDraw.y) {
-            Vector2DPixel temp = new Vector2DPixel();
-            temp.x = endDraw.x;
-            temp.y = startDraw.y;
-            Vector2DPixel temp1 = new Vector2DPixel();
-            temp1.x = startDraw.x;
-            temp1.y = endDraw.y;
+            Vector2DPixel temp = new Vector2DPixel(endDraw.x, startDraw.y);
+            Vector2DPixel temp1 = new Vector2DPixel(startDraw.x, endDraw.y);
             startDraw = temp;
             endDraw = temp1;
         }
@@ -132,6 +130,7 @@ public class DraggableAndResizableComponent extends JComponent {
         var parent = (DrawingPanel) getParent();
         parent.dragComponents.remove(this);
         parent.remove(this);
+        parent.updateList();
         parent.repaint();
     }
 

@@ -10,23 +10,24 @@ import javax.swing.event.*;
 
 public class WorkSpace extends JFrame {
     // region workSpace CONST
-    public static final boolean IS_TEST = true;
-    public static final String CARDS_FOLDER_NAME = "Cards";
-    public static final String NOT_SELECTED = "NOT SELECTED";
-    public static final String DIRECTORY_CHOOSER_TITLE = "Select work directory";
+    public final boolean IS_TEST = true;
+    public final String CARDS_FOLDER_NAME = "Cards";
+    public final String NOT_SELECTED = "NOT SELECTED";
+    public final String DIRECTORY_CHOOSER_TITLE = "Select work directory";
     public static final String CARD_CHOOSER_TITLE = "Select card";
-    public static final String DIRECTORY_LABEL_TEMPLATE = "Work directory: ";
-    public static final String FIRST_CARD_LABEL_TEMPLATE = "First card: ";
-    public static final String SECOND_CARD_LABEL_TEMPLATE = "Second card: ";
-    public static final String CURRENT_CARD_LABEL_TEMPLATE = "Current card: ";
-    public static final String COUNT_DIFFERENCES_LABEL_TEMPLATE = "Count differences: ";
-    public static final String WARNING_TITLE_IF_EQUALS_FILES = "Identical files";
-    public static final String WARNING_MESSAGE_IF_EQUALS_FILES = "You selected the same image.";
-    public static final String WARNING_TITLE_IF_NOT_CARDS_FOLDER = "Incorrect directory";
-    public static final String WARNING_TITLE_IF_SELECT_LEVEL_EMPTY = "Level data empty";
-    public static final String WARNING_MESSAGE_IF_SELECT_LEVEL_EMPTY = "There are no images for the selected data";
-    public static final String WARNING_MESSAGE_IF_NOT_CARDS_FOLDER = "You have selected the wrong directory." +
+    public final String DIRECTORY_LABEL_TEMPLATE = "Work directory: ";
+    public final String FIRST_CARD_LABEL_TEMPLATE = "First card: ";
+    public final String SECOND_CARD_LABEL_TEMPLATE = "Second card: ";
+    public final String CURRENT_CARD_LABEL_TEMPLATE = "Current card: ";
+    public final String WARNING_TITLE_IF_EQUALS_FILES = "Identical files";
+    public final String WARNING_MESSAGE_IF_EQUALS_FILES = "You selected the same image.";
+    public final String WARNING_TITLE_IF_NOT_CARDS_FOLDER = "Incorrect directory";
+    public final String WARNING_TITLE_IF_SELECT_LEVEL_EMPTY = "Level data empty";
+    public final String WARNING_MESSAGE_IF_SELECT_LEVEL_EMPTY = "There are no images for the selected data";
+    public final String WARNING_MESSAGE_IF_NOT_CARDS_FOLDER = "You have selected the wrong directory." +
             " Select the directory with the cards.";
+    public final String WARNING_TITLE_IF_EMPTY_SAVE = "Nothing to save";
+    public final String WARNING_MESSAGE_IF_EMPTY_SAVE = "Differences are not created.";
     public final String[][] CARD_CHOOSER_FILTERS = {
             {"png", "PNG files (*.png)"},
             {"jpeg" , "JPEG files (*.jpeg)"}
@@ -75,6 +76,7 @@ public class WorkSpace extends JFrame {
     private JScrollPane levelDataView;
     private JList differencesList;
     private JLabel countDifferencesLabel;
+    private JButton saveButton;
     private JLabel workDirectoryLabel;
     // JFormDesigner - End of variables declaration  //GEN-END:variables
 
@@ -113,6 +115,7 @@ public class WorkSpace extends JFrame {
         levelDataView = new JScrollPane();
         differencesList = new JList();
         countDifferencesLabel = new JLabel();
+        saveButton = new JButton();
         workDirectoryLabel = new JLabel();
 
         //======== this ========
@@ -318,9 +321,9 @@ public class WorkSpace extends JFrame {
                 levelDataManegment.setFont(new Font(".AppleSystemUIFont", Font.PLAIN, 14));
                 levelDataManegment.setLayout(new GridBagLayout());
                 ((GridBagLayout)levelDataManegment.getLayout()).columnWidths = new int[] {0, 0};
-                ((GridBagLayout)levelDataManegment.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0};
+                ((GridBagLayout)levelDataManegment.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0, 0, 0, 0};
                 ((GridBagLayout)levelDataManegment.getLayout()).columnWeights = new double[] {1.0, 1.0E-4};
-                ((GridBagLayout)levelDataManegment.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0E-4};
+                ((GridBagLayout)levelDataManegment.getLayout()).rowWeights = new double[] {0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0E-4};
 
                 //---- selectFirstCard ----
                 selectFirstCard.setText("Select first card");
@@ -362,6 +365,9 @@ public class WorkSpace extends JFrame {
                 {
                     levelDataView.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
                     levelDataView.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+                    //---- differencesList ----
+                    differencesList.setEnabled(false);
                     levelDataView.setViewportView(differencesList);
                 }
                 levelDataManegment.add(levelDataView, new GridBagConstraints(0, 4, 1, 1, 0.0, 0.0,
@@ -373,6 +379,17 @@ public class WorkSpace extends JFrame {
                 countDifferencesLabel.setFont(new Font(Font.DIALOG, Font.BOLD, 14));
                 levelDataManegment.add(countDifferencesLabel, new GridBagConstraints(0, 5, 1, 1, 0.0, 0.0,
                     GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL,
+                    new Insets(0, 0, 5, 0), 0, 0));
+
+                //---- saveButton ----
+                saveButton.setText("Save");
+                saveButton.setEnabled(false);
+                saveButton.setMaximumSize(new Dimension(140, 40));
+                saveButton.setMinimumSize(new Dimension(140, 40));
+                saveButton.setPreferredSize(new Dimension(140, 40));
+                saveButton.addActionListener(e -> save(e));
+                levelDataManegment.add(saveButton, new GridBagConstraints(0, 6, 1, 1, 0.0, 0.0,
+                    GridBagConstraints.CENTER, GridBagConstraints.NONE,
                     new Insets(0, 0, 0, 0), 0, 0));
             }
             body.add(levelDataManegment, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0,
@@ -400,7 +417,7 @@ public class WorkSpace extends JFrame {
 
     private void prepareMainFrame() {
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
-        setSize(size.width / 2, size.height / 2);
+        setSize((int) (size.width * 0.75f), (int) (size.height * 0.75f));
         setLocationRelativeTo(null);
     }
     // endregion
@@ -686,6 +703,15 @@ public class WorkSpace extends JFrame {
             }
         }
     }
+
+    private void save(ActionEvent e) {
+        if (cardIconLabel.dragComponents.size() == 0) {
+            JOptionPane.showMessageDialog(this, WARNING_MESSAGE_IF_EMPTY_SAVE,
+                    WARNING_TITLE_IF_EMPTY_SAVE, JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        new SaveHandler(cardIconLabel.getDifferences(), firstCardAbsolutePath, secondCardAbsolutePath);
+    }
     // endregion
 
     // region CARD_VIEW
@@ -710,6 +736,7 @@ public class WorkSpace extends JFrame {
         ImageIcon cardIcon = new ImageIcon(firstCardImage);
         cardIconLabel.setIcon(cardIcon);
         cardIconLabel.setSize(firstCardImage.getWidth(), firstCardImage.getHeight());
+        saveButton.setEnabled(true);
         repaint();
     }
     // endregion

@@ -6,6 +6,7 @@ class DrawingListener extends MouseAdapter {
     public void mousePressed(MouseEvent e) {
         var curDragComponent = new DraggableAndResizableComponent();
         DrawingPanel source = (DrawingPanel) e.getSource();
+        source.add(curDragComponent);
         source.curDragComponent = curDragComponent;
         source.isDrawing = true;
         if (!source.dragComponents.contains(curDragComponent)) {
@@ -26,10 +27,8 @@ class DrawingListener extends MouseAdapter {
         DrawingPanel source = (DrawingPanel) e.getSource();
         source.curDragComponent.setEndDraw(e.getX(), e.getY());
         source.curDragComponent.release();
-        source.add(source.curDragComponent);
         source.isDrawing = false;
         source.repaint();
-        source.updateList();
     }
 
 }
