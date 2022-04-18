@@ -5,7 +5,7 @@ import java.awt.event.MouseEvent;
 public class DraggableAndResizableListener extends MouseAdapter {
     private int cursor;
     private Point startPos = null;
-    private Boolean isFirstTap = true;
+    private Boolean isFirstTap = false;
     private int x;
     private int y;
     private int w;
@@ -29,6 +29,7 @@ public class DraggableAndResizableListener extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent me) {
+        isFirstTap = true;
         DraggableAndResizableComponent source = (DraggableAndResizableComponent) me.getSource();
         var resizableBorder = (ResizableBorder) source.getBorder();
         cursor = resizableBorder.getCursor(me);
@@ -155,6 +156,7 @@ public class DraggableAndResizableListener extends MouseAdapter {
             y = source.getY();
             w = source.getWidth();
             h = source.getHeight();
+            isFirstTap = false;
         }
         source.difference.size = new Vector2DPixel(w, h);
         source.difference.position = new Vector2DPixel(x, y);

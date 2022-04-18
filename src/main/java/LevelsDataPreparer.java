@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class LevelsDataPreparer {
-    public static final String NOT_SELECTED = "NOT SELECTED";
     public static final String NOT_EXISTS = "FILE FOLDER NOT EXISTS";
     public static final Color COLOR_IF_NOT_EXISTS = Color.RED;
     public static final Color COLOR_IF_EXISTS = Color.BLACK;
@@ -17,7 +16,6 @@ public class LevelsDataPreparer {
     public static final String MAIN_DIRECTORY = "STD"; // Assets // STD
     public static final String SCRIPTABLE_OBJECT_FOLDER_NAME = "ScriptableObject";
     public static final String LEVEL_DATA_FOLDER_NAME = "LevelData";
-    public static final String CARDS_FOLDER_NAME = "Cads";
     public ArrayList<LevelDataTemp> levels = new ArrayList<LevelDataTemp>();
     public int currentSelect = -1;
     private JList source;
@@ -85,7 +83,9 @@ public class LevelsDataPreparer {
             MonoBehaviour content = mapper.readValue(levelsFiles[i], MonoBehaviour.class);
             File firstCard = findRefCardByGUID(content.monoBehaviour.pictureFirst.guid);
             File secondCard = findRefCardByGUID(content.monoBehaviour.pictureSecond.guid);
-            levels.add(new LevelDataTemp(firstCard.getAbsolutePath(), secondCard.getAbsolutePath()));
+            ArrayList<DifferenceTemp> differences = new ArrayList<DifferenceTemp>();
+            var data = new LevelDataTemp(firstCard.getAbsolutePath(), secondCard.getAbsolutePath(), differences);
+            levels.add(data);
         }
     }
 

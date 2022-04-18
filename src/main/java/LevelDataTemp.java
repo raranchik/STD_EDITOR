@@ -1,11 +1,13 @@
 import java.util.ArrayList;
 
 public class LevelDataTemp {
-    public LevelDataTemp(String firstPath, String secondPath) {
-        firstCardAbsolutePath = firstPath;
-        secondCardAbsolutePath = secondPath;
-    }
+    public String fCardAbsPath = "";
+    public String sCardAbsPath = "";
     public ArrayList<DifferenceTemp> differences = new ArrayList<DifferenceTemp>();
-    public String firstCardAbsolutePath = "";
-    public String secondCardAbsolutePath = "";
+
+    public LevelDataTemp(String aFCardAbsPath, String aSCardAbsPath, ArrayList<DifferenceTemp> aDifferences) {
+        fCardAbsPath = aFCardAbsPath;
+        sCardAbsPath = aSCardAbsPath;
+        differences = aDifferences;
+    }
 }

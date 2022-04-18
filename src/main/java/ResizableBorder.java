@@ -9,7 +9,7 @@ import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
 
 public class ResizableBorder implements Border {
-    private int dist = 8;
+    private int dist;
     int[] locations = {
             SwingConstants.NORTH, SwingConstants.SOUTH, SwingConstants.WEST,
             SwingConstants.EAST, SwingConstants.NORTH_WEST,
