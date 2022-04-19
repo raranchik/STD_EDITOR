@@ -3,21 +3,21 @@ import java.awt.event.MouseEvent;
 
 class DrawingListener extends MouseAdapter {
     public Boolean isDrawing = false;
-    public Vector2DPixel start = null;
-    public Vector2DPixel end = null;
-    public Vector2DPixel size = null;
+    public Vector2DPixel startDraw = null;
+    public Vector2DPixel endDraw = null;
+    public Vector2DPixel differenceSize = null;
 
     @Override
     public void mousePressed(MouseEvent e) {
         clear();
 
-        start = new Vector2DPixel(e.getX(), e.getY());
+        startDraw = new Vector2DPixel(e.getX(), e.getY());
         isDrawing = true;
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        end = new Vector2DPixel(e.getX(), e.getY());
+        endDraw = new Vector2DPixel(e.getX(), e.getY());
 
         DrawingPanel source = (DrawingPanel) e.getSource();
         source.repaint();
@@ -25,13 +25,13 @@ class DrawingListener extends MouseAdapter {
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        end = new Vector2DPixel(e.getX(), e.getY());
+        endDraw = new Vector2DPixel(e.getX(), e.getY());
         DrawingPanel source = (DrawingPanel) e.getSource();
 
         var d = new DraggableAndResizableComponent();
-        d.setStartDraw(start);
-        d.setEndDraw(end);
-        d.setSize(size);
+        d.setStartDraw(startDraw);
+        d.setEndDraw(endDraw);
+        d.setDifferenceSize(differenceSize);
         d.release(source);
 
         clear();
@@ -41,9 +41,9 @@ class DrawingListener extends MouseAdapter {
     }
 
     private void clear() {
-        start = null;
-        end = null;
-        size = null;
+        startDraw = null;
+        endDraw = null;
+        differenceSize = null;
     }
 
 }

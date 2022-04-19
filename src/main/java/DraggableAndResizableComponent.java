@@ -8,22 +8,19 @@ public class DraggableAndResizableComponent extends JComponent {
 
     public DifferenceTemp difference = new DifferenceTemp();
     public Vector2DPixel position = new Vector2DPixel(0, 0);
-    public Vector2DPixel size = new Vector2DPixel(0,0);
+    public Vector2DPixel differenceSize = new Vector2DPixel(0,0);
     public Vector2DPixel startDraw = new Vector2DPixel(0, 0);
     public Vector2DPixel endDraw = new Vector2DPixel(0,0);
     public ResizableBorder border = new ResizableBorder(thickness);
 
-    public boolean opaque = false;
-
     public DraggableAndResizableComponent() {
         setEnabled(false);
         setVisible(false);
-        setOpaque(opaque);
+        setOpaque(false);
         setBackground(new Color(0, 0, 0, 0));
         setBorder(border);
         setMinimumSize(new Dimension(30, 30));
         setMaximumSize(new Dimension(4096, 4096));
-        setSize(0, 0);
 
         DraggableAndResizableListener resizeListener = new DraggableAndResizableListener();
         addMouseListener(resizeListener);
@@ -39,7 +36,7 @@ public class DraggableAndResizableComponent extends JComponent {
 
     public void release(DrawingPanel source) {
         calculatePositionOnRelease();
-        if (size == null || size.x <= 30 || size.y <= 30) {
+        if (differenceSize == null || differenceSize.x <= 30 || differenceSize.y <= 30) {
             return;
         }
 
@@ -47,12 +44,12 @@ public class DraggableAndResizableComponent extends JComponent {
         source.dragComponents.add(this);
         source.lastIndex++;
 
-        setBounds(startDraw.x, startDraw.y, size.x, size.y);
+        setBounds(startDraw.x, startDraw.y, differenceSize.x, differenceSize.y);
         setEnabled(true);
         setVisible(true);
 
         difference.index = source.lastIndex;
-        difference.size = size;
+        difference.size = differenceSize;
         difference.position = position;
         source.updateList();
 
@@ -68,22 +65,13 @@ public class DraggableAndResizableComponent extends JComponent {
         endDraw = v;
     }
 
-    public void setSize(Vector2DPixel v) {
-        size = v;
+    public void setDifferenceSize(Vector2DPixel v) {
+        differenceSize = v;
     }
 
     public void updateThickness() {
         border = new ResizableBorder(thickness);
         setBorder(border);
-    }
-
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        if (isOpaque()) {
-            g.setColor(getBackground());
-            g.fillRect(0, 0, getWidth(), getHeight());
-        }
     }
 
     public void resize() {
@@ -117,16 +105,9 @@ public class DraggableAndResizableComponent extends JComponent {
 
     private void onRemove(KeyEvent e) {
         switch (e.getKeyCode()) {
-            case KeyEvent.VK_DELETE:
-                remove();
-                break;
-
-            case KeyEvent.VK_BACK_SPACE:
-                remove();
-                break;
-
-            default:
-                break;
+            case KeyEvent.VK_DELETE, KeyEvent.VK_BACK_SPACE -> remove();
+            default -> {
+            }
         }
     }
 

@@ -45,8 +45,8 @@ public class DrawingPanel extends JLabel {
         }
 
         g.setColor(DIFFERENCES_DRAWING_BORDER_COLOR);
-        Vector2DPixel start = drawingListener.start;
-        Vector2DPixel end = drawingListener.end;
+        Vector2DPixel start = drawingListener.startDraw;
+        Vector2DPixel end = drawingListener.endDraw;
         drawPerfectRect((Graphics2D) g, start, end);
     }
 
@@ -55,7 +55,7 @@ public class DrawingPanel extends JLabel {
         int py = Math.min(v1.y, v2.y);
         int pw = Math.abs(v1.x - v2.x);
         int ph = Math.abs(v1.y - v2.y);
-        drawingListener.size = new Vector2DPixel(pw, ph);
+        drawingListener.differenceSize = new Vector2DPixel(pw, ph);
         g2D.setStroke(dragCompStroke);
         g2D.drawRect(px, py, pw, ph);
     }
