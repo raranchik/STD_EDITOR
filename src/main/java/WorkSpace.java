@@ -441,8 +441,8 @@ public class WorkSpace extends JFrame {
     // region BUTTONS
     private void selectWorkDirectory(ActionEvent e) {
         if (IS_TEST) {
-            currentDirectoryAbsolutePath = "C:\\prj\\spot-the-difference\\Assets\\Sprites\\Cards";
-//            currentDirectoryAbsolutePath = "/Users/ds27/Documents/GIT/Logic/Assets/STD/Sprites/Cards";
+//            currentDirectoryAbsolutePath = "C:\\prj\\spot-the-difference\\Assets\\Sprites\\Cards";
+            currentDirectoryAbsolutePath = "/Users/ds27/Documents/GIT/Logic/Assets/STD/Sprites/Cards";
             updateLabel(workDirectoryLabel, DIRECTORY_LABEL_TEMPLATE, currentDirectoryAbsolutePath);
             selectFirstCard.setEnabled(true);
             cardChooser.setCurrentDirectory(new File(currentDirectoryAbsolutePath));
