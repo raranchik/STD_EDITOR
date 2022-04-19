@@ -157,6 +157,9 @@ public class WorkSpace extends JFrame {
         //======== levelsDataContainer ========
         {
             levelsDataContainer.setBorder(new TitledBorder(null, "Levels data", TitledBorder.LEFT, TitledBorder.TOP, null, Color.black));
+            levelsDataContainer.setMaximumSize(new Dimension(300, 2147483647));
+            levelsDataContainer.setMinimumSize(new Dimension(200, 226));
+            levelsDataContainer.setPreferredSize(new Dimension(300, 538));
             levelsDataContainer.setLayout(new GridBagLayout());
             ((GridBagLayout)levelsDataContainer.getLayout()).columnWeights = new double[] {1.0};
             ((GridBagLayout)levelsDataContainer.getLayout()).rowWeights = new double[] {1.0};
@@ -384,6 +387,9 @@ public class WorkSpace extends JFrame {
         //======== selectCardAndDifferencesContainer ========
         {
             selectCardAndDifferencesContainer.setBorder(new TitledBorder(null, "Select card and list differences", TitledBorder.LEFT, TitledBorder.TOP, null, Color.black));
+            selectCardAndDifferencesContainer.setMaximumSize(new Dimension(300, 2147483647));
+            selectCardAndDifferencesContainer.setMinimumSize(new Dimension(200, 264));
+            selectCardAndDifferencesContainer.setPreferredSize(new Dimension(300, 420));
             selectCardAndDifferencesContainer.setLayout(new GridBagLayout());
             ((GridBagLayout)selectCardAndDifferencesContainer.getLayout()).columnWidths = new int[] {0, 0};
             ((GridBagLayout)selectCardAndDifferencesContainer.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0};
@@ -573,7 +579,8 @@ public class WorkSpace extends JFrame {
 
     private void enableComponentsFolderChooser() {
 //        folderAbsPath = folderChooser.getSelectedFile().toString();
-        folderAbsPath = "C:\\prj\\spot-the-difference\\Assets\\Sprites\\Cards";
+//        folderAbsPath = "C:\\prj\\spot-the-difference\\Assets\\Sprites\\Cards";
+        folderAbsPath = "/Users/ds27/Documents/GIT/Spot_the_Difference/Assets/Sprites/Cards";
         updateLabel(workDerectoryLabel, WORK_DIRECTORY_TEMPLATE, folderAbsPath);
         selectFirstCardButton.setEnabled(true);
         cardsChooser.setCurrentDirectory(new File(folderAbsPath));
