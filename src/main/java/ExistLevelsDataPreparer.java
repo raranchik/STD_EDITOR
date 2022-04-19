@@ -8,16 +8,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class LevelsDataPreparer {
+public class ExistLevelsDataPreparer {
     public static final String NOT_EXISTS = "FILE FOLDER NOT EXISTS";
     public static final Color COLOR_IF_NOT_EXISTS = Color.RED;
     public static final Color COLOR_IF_EXISTS = Color.BLACK;
     public static final String COUNT_LEVELS_DATA_LABEL_TEMPLATE = "Count levels data: ";
-    public static final String MAIN_DIRECTORY = "STD"; // Assets // STD
+    public static final String MAIN_DIRECTORY = "Assets"; // Assets // STD
     public static final String SCRIPTABLE_OBJECT_FOLDER_NAME = "ScriptableObject";
     public static final String LEVEL_DATA_FOLDER_NAME = "LevelData";
     public ArrayList<LevelDataTemp> levels = new ArrayList<LevelDataTemp>();
     public int currentSelect = -1;
+    public int lastIndex = 0;
     private JList source;
     private JLabel sourceLabel;
     private String workDirectory = "";
@@ -28,7 +29,7 @@ public class LevelsDataPreparer {
     private File[][] cardsFiles = null;
     private ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
 
-    public LevelsDataPreparer(JList aSource, JLabel aLabel, String aWorkDirectory) {
+    public ExistLevelsDataPreparer(JList aSource, JLabel aLabel, String aWorkDirectory) {
         source = aSource;
         sourceLabel = aLabel;
         workDirectory = aWorkDirectory;
@@ -57,11 +58,13 @@ public class LevelsDataPreparer {
                 String name = levelsFiles[i].getName();
                 model.add(i, name.replace(".asset", ""));
             }
+            source.setEnabled(true);
             source.setModel(model);
             sourceLabel.setText(COUNT_LEVELS_DATA_LABEL_TEMPLATE + model.size());
             sourceLabel.setForeground(COLOR_IF_EXISTS);
             matchDataCard();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             setEmpty();
         }
     }
@@ -84,7 +87,8 @@ public class LevelsDataPreparer {
             File firstCard = findRefCardByGUID(content.monoBehaviour.pictureFirst.guid);
             File secondCard = findRefCardByGUID(content.monoBehaviour.pictureSecond.guid);
             ArrayList<DifferenceTemp> differences = new ArrayList<DifferenceTemp>();
-            var data = new LevelDataTemp(firstCard.getAbsolutePath(), secondCard.getAbsolutePath(), differences);
+            lastIndex++;
+            var data = new LevelDataTemp(firstCard.getAbsolutePath(), secondCard.getAbsolutePath(), differences, lastIndex);
             levels.add(data);
         }
     }
@@ -110,9 +114,11 @@ public class LevelsDataPreparer {
     }
 
     private void setEmpty() {
+        source.setEnabled(false);
         model = new DefaultListModel<String>();
         source.setModel(model);
         sourceLabel.setText(COUNT_LEVELS_DATA_LABEL_TEMPLATE + NOT_EXISTS);
         sourceLabel.setForeground(COLOR_IF_NOT_EXISTS);
     }
+
 }

@@ -128,7 +128,7 @@ new FormModel {
 							"horizontalScrollBarPolicy": 32
 							"verticalScrollBarPolicy": 22
 							add( new FormComponent( "javax.swing.JList" ) {
-								name: "listExistLevelData2"
+								name: "listNewLevelData"
 								"enabled": false
 								"selectionMode": 0
 								addEvent( new FormEvent( "javax.swing.event.ListSelectionListener", "valueChanged", "selectLevelData", true ) )

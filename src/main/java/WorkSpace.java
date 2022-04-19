@@ -1,7 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.beans.*;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
@@ -32,7 +31,6 @@ public class WorkSpace extends JFrame {
     private final String SELECT_EXIST_DATA_TEMPLATE = "Selected existing data: ";
     private final String COUNT_EXIST_DATA_TEMPLATE = "Count existing data: ";
     private final String SELECT_NEW_DATA_TEMPLATE = "Selected new data: ";
-    private final String COUNT_NEW_DATA_TEMPLATE = "Count new data: ";
 
     private final String WARNING_TITLE_IF_NOT_CARDS_FOLDER = "Incorrect cards directory";
     private final String WARNING_MESSAGE_IF_NOT_CARDS_FOLDER = "You have selected the wrong directory." +
@@ -55,9 +53,6 @@ public class WorkSpace extends JFrame {
     // region VARIABLES
     private JFileChooser folderChooser = new JFileChooser();
     private String folderAbsPath = "";
-    public String getFolderAbsPath() {
-        return folderAbsPath;
-    }
 
     private JFileChooser cardsChooser = new JFileChooser();
     private String fCardAbsPath = "";
@@ -67,7 +62,8 @@ public class WorkSpace extends JFrame {
     private String sCardFileName = "";
     private BufferedImage sCardImage = null;
 
-    private LevelsDataPreparer lvlsPrep = null;
+    private ExistLevelsDataPreparer existLevelsPreparer = null;
+    private NewLevelsDataPreparer newLevelsPreparer = null;
     private DrawingPanel cardView = null;
 
     private byte currentViewImage = -1;
@@ -90,7 +86,7 @@ public class WorkSpace extends JFrame {
         newLevelDataContainer = new JPanel();
         selectedNewLevelDataLabel = new JLabel();
         scrollListNewLevelData = new JScrollPane();
-        listExistLevelData2 = new JList();
+        listNewLevelData = new JList();
         countNewLevelDataLabel = new JLabel();
         saveAllButton = new JButton();
         cardViewContainer = new JPanel();
@@ -232,11 +228,11 @@ public class WorkSpace extends JFrame {
                         scrollListNewLevelData.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
                         scrollListNewLevelData.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
-                        //---- listExistLevelData2 ----
-                        listExistLevelData2.setEnabled(false);
-                        listExistLevelData2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                        listExistLevelData2.addListSelectionListener(e -> selectLevelData(e));
-                        scrollListNewLevelData.setViewportView(listExistLevelData2);
+                        //---- listNewLevelData ----
+                        listNewLevelData.setEnabled(false);
+                        listNewLevelData.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                        listNewLevelData.addListSelectionListener(e -> selectLevelData(e));
+                        scrollListNewLevelData.setViewportView(listNewLevelData);
                     }
                     newLevelDataContainer.add(scrollListNewLevelData, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0,
                         GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -519,40 +515,45 @@ public class WorkSpace extends JFrame {
 
     // region LISTS
     private void selectLevelData(ListSelectionEvent e) {
-//        if (!e.getValueIsAdjusting()) {
-//            try {
-//                var source = (JList) e.getSource();
-//                int i = source.getSelectedIndex();
-//                if (levelsPreparer.currentSelect == i || i == -1) {
-//                    return;
-//                }
-//                levelsPreparer.currentSelect = i;
-//                var l = levelsPreparer.levels.get(i);
-//                firstCardAbsolutePath = l.firstCardAbsolutePath;
-//                secondCardAbsolutePath = l.secondCardAbsolutePath;
-//                if (firstCardAbsolutePath.isEmpty() || secondCardAbsolutePath.isEmpty()) {
-//                    JOptionPane.showMessageDialog(this, WARNING_MESSAGE_IF_SELECT_LEVEL_EMPTY,
-//                            WARNING_TITLE_IF_SELECT_LEVEL_EMPTY, JOptionPane.ERROR_MESSAGE);
-//                    return;
-//                }
-//                File file = null;
-//                if (!secondCardAbsolutePath.isEmpty()) {
-//                    file = new File(secondCardAbsolutePath);
-//                    secondCardImage = ImageIO.read(file);
-//                    secondCard = file.getName();
-//                }
-//                else {
-//                    disableComponentsForSelectSecondCard();
-//                }
-//                file = new File(firstCardAbsolutePath);
-//                firstCardImage = ImageIO.read(file);
-//                firstCard = file.getName();
-//                drawCard();
-//                enableComponentsForSelectFirstCard(true);
-//                enableComponentsForSelectSecondCard(true);
-//            }
-//            catch (IOException ignored) { }
-//        }
+        if (e.getValueIsAdjusting()) {
+            return;
+        }
+
+        try {
+            var source = (JList) e.getSource();
+            int i = source.getSelectedIndex();
+            if (existLevelsPreparer.currentSelect == i || i == -1) {
+                return;
+            }
+
+            existLevelsPreparer.currentSelect = i;
+            var l = existLevelsPreparer.levels.get(i);
+            fCardAbsPath = l.fCardAbsPath;
+            sCardAbsPath = l.sCardAbsPath;
+            if (fCardAbsPath.isEmpty() || sCardAbsPath.isEmpty()) {
+                showError(this, WARNING_TITLE_IF_SELECT_LEVEL_EMPTY, WARNING_MESSAGE_IF_SELECT_LEVEL_EMPTY);
+
+                return;
+            }
+
+            File file = null;
+            if (!sCardAbsPath.isEmpty()) {
+                file = new File(sCardAbsPath);
+                sCardImage = ImageIO.read(file);
+                sCardFileName = file.getName();
+            }
+            else {
+                disableComponentsSecondCard();
+            }
+            file = new File(fCardAbsPath);
+            fCardImage = ImageIO.read(file);
+            fCardFileName = file.getName();
+            currentViewImage = 1;
+            drawCard();
+            enableComponentsFirstCard(true);
+            enableComponentsSecondCard(true);
+        }
+        catch (IOException ignored) { }
     }
     // endregion
 
@@ -751,7 +752,13 @@ public class WorkSpace extends JFrame {
     }
 
     private void saveNewData(ActionEvent e) {
-        saveAllButton.setEnabled(true);
+        if (newLevelsPreparer == null) {
+            newLevelsPreparer = new NewLevelsDataPreparer(listNewLevelData, countNewLevelDataLabel);
+            listNewLevelData.setEnabled(true);
+            saveAllButton.setEnabled(true);
+        }
+
+        newLevelsPreparer.addItem(fCardAbsPath, sCardAbsPath, cardView.getDifferences());
     }
 
     private void removeAllDifferences(ActionEvent e) {
@@ -791,7 +798,7 @@ public class WorkSpace extends JFrame {
             return;
         }
 
-        lvlsPrep = new LevelsDataPreparer(listExistLevelData, countExistLevelDataLabel, folderAbsPath);
+        existLevelsPreparer = new ExistLevelsDataPreparer(listExistLevelData, countExistLevelDataLabel, folderAbsPath);
     }
 
     private boolean isIdenticalFiles(String firstFile, String secondFile) {
@@ -866,7 +873,7 @@ public class WorkSpace extends JFrame {
     private JPanel newLevelDataContainer;
     private JLabel selectedNewLevelDataLabel;
     private JScrollPane scrollListNewLevelData;
-    private JList listExistLevelData2;
+    private JList listNewLevelData;
     private JLabel countNewLevelDataLabel;
     private JButton saveAllButton;
     private JPanel cardViewContainer;
