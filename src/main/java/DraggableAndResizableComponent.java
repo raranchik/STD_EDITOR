@@ -60,27 +60,12 @@ public class DraggableAndResizableComponent extends JComponent {
         repaint();
     }
 
-    public void setStartDraw(int x, int y) {
-        startDraw.x = x;
-        startDraw.y = y;
-    }
-
     public void setStartDraw(Vector2DPixel v) {
         startDraw = v;
     }
 
-    public void setEndDraw(int x, int y) {
-        endDraw.x = x;
-        endDraw.y = y;
-    }
-
     public void setEndDraw(Vector2DPixel v) {
         endDraw = v;
-    }
-
-    public void setSize(int x, int y) {
-        size.x = x;
-        size.y = y;
     }
 
     public void setSize(Vector2DPixel v) {

@@ -9,6 +9,8 @@ class DrawingListener extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent e) {
+        clear();
+
         start = new Vector2DPixel(e.getX(), e.getY());
         isDrawing = true;
     }
@@ -16,16 +18,14 @@ class DrawingListener extends MouseAdapter {
     @Override
     public void mouseDragged(MouseEvent e) {
         end = new Vector2DPixel(e.getX(), e.getY());
-        isDrawing = true;
-        DrawingPanel source = (DrawingPanel) e.getSource();
 
+        DrawingPanel source = (DrawingPanel) e.getSource();
         source.repaint();
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
         end = new Vector2DPixel(e.getX(), e.getY());
-        isDrawing = false;
         DrawingPanel source = (DrawingPanel) e.getSource();
 
         var d = new DraggableAndResizableComponent();
@@ -34,10 +34,16 @@ class DrawingListener extends MouseAdapter {
         d.setSize(size);
         d.release(source);
 
-        start = null;
-        end = null;
+        clear();
+        isDrawing = false;
 
         source.repaint();
+    }
+
+    private void clear() {
+        start = null;
+        end = null;
+        size = null;
     }
 
 }

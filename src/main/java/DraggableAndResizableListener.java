@@ -5,11 +5,6 @@ import java.awt.event.MouseEvent;
 public class DraggableAndResizableListener extends MouseAdapter {
     private int cursor;
     private Point startPos = null;
-    private Boolean isFirstTap = false;
-    private int x;
-    private int y;
-    private int w;
-    private int h;
 
     @Override
     public void mouseMoved(MouseEvent me) {
@@ -29,7 +24,6 @@ public class DraggableAndResizableListener extends MouseAdapter {
 
     @Override
     public void mousePressed(MouseEvent me) {
-        isFirstTap = true;
         DraggableAndResizableComponent source = (DraggableAndResizableComponent) me.getSource();
         var resizableBorder = (ResizableBorder) source.getBorder();
         cursor = resizableBorder.getCursor(me);
@@ -40,30 +34,26 @@ public class DraggableAndResizableListener extends MouseAdapter {
 
     @Override
     public void mouseDragged(MouseEvent me) {
-        isFirstTap = false;
         DraggableAndResizableComponent source = (DraggableAndResizableComponent) me.getSource();
         if (startPos != null) {
-            x = source.getX();
-            y = source.getY();
-            w = source.getWidth();
-            h = source.getHeight();
+            int x = source.getX();
+            int y = source.getY();
+            int w = source.getWidth();
+            int h = source.getHeight();
             int dx = me.getX() - startPos.x;
             int dy = me.getY() - startPos.y;
 
             switch (cursor) {
                 case Cursor.N_RESIZE_CURSOR -> {
                     if (!(h - dy < 50)) {
-                        y += dy;
-                        h -= dy;
-                        source.setBounds(x, y, w, h);
+                        source.setBounds(x, y + dy, w, h - dy);
                         source.resize();
                     }
                 }
 
                 case Cursor.S_RESIZE_CURSOR -> {
                     if (!(h + dy < 50)) {
-                        h += dy;
-                        source.setBounds(x, y, w, h);
+                        source.setBounds(x, y, w, h + dy);
                         startPos = me.getPoint();
                         source.resize();
                     }
@@ -71,9 +61,7 @@ public class DraggableAndResizableListener extends MouseAdapter {
 
                 case Cursor.W_RESIZE_CURSOR -> {
                     if (!(w - dx < 50)) {
-                        x += dx;
-                        w -= dx;
-                        source.setBounds(x, y, w, h);
+                        source.setBounds(x + dx, y, w - dx, h);
                         source.resize();
                     }
                 }
@@ -81,8 +69,7 @@ public class DraggableAndResizableListener extends MouseAdapter {
 
                 case Cursor.E_RESIZE_CURSOR -> {
                     if (!(w + dx < 50)) {
-                        w += dx;
-                        source.setBounds(x, y, w, h);
+                        source.setBounds(x, y, w + dx, h);
                         startPos = me.getPoint();
                         source.resize();
                     }
@@ -90,21 +77,14 @@ public class DraggableAndResizableListener extends MouseAdapter {
 
                 case Cursor.NW_RESIZE_CURSOR -> {
                     if (!(w - dx < 50) && !(h - dy < 50)) {
-                        x += dx;
-                        y += dy;
-                        w -= dx;
-                        h -= dy;
-                        source.setBounds(x, y, w, h);
+                        source.setBounds(x + dx, y + dy, w - dx, h - dy);
                         source.resize();
                     }
                 }
 
                 case Cursor.NE_RESIZE_CURSOR -> {
                     if (!(w + dx < 50) && !(h - dy < 50)) {
-                        y += dy;
-                        w += dx;
-                        h -= dy;
-                        source.setBounds(x, y, w, h);
+                        source.setBounds(x, y + dy, w + dx, h - dy);
                         startPos = new Point(me.getX(), startPos.y);
                         source.resize();
                     }
@@ -112,10 +92,7 @@ public class DraggableAndResizableListener extends MouseAdapter {
 
                 case Cursor.SW_RESIZE_CURSOR -> {
                     if (!(w - dx < 50) && !(h + dy < 50)) {
-                        x += dx;
-                        w -= dx;
-                        h += dy;
-                        source.setBounds(x, y, w, h);
+                        source.setBounds(x + dx, y, w - dx, h + dy);
                         startPos = new Point(startPos.x, me.getY());
                         source.resize();
                     }
@@ -123,9 +100,7 @@ public class DraggableAndResizableListener extends MouseAdapter {
 
                 case Cursor.SE_RESIZE_CURSOR -> {
                     if (!(w + dx < 50) && !(h + dy < 50)) {
-                        w += dx;
-                        h += dy;
-                        source.setBounds(x, y, w, h);
+                        source.setBounds(x, y, w + dx, h + dy);
                         startPos = me.getPoint();
                         source.resize();
                     }
@@ -135,10 +110,6 @@ public class DraggableAndResizableListener extends MouseAdapter {
                     var bounds = source.getBounds();
                     bounds.translate(dx, dy);
                     source.setBounds(bounds);
-                    x = bounds.x;
-                    y = bounds.y;
-                    w = bounds.width;
-                    h = bounds.height;
                     source.resize();
                 }
             }
@@ -151,15 +122,9 @@ public class DraggableAndResizableListener extends MouseAdapter {
     public void mouseReleased(MouseEvent me) {
         startPos = null;
         DraggableAndResizableComponent source = (DraggableAndResizableComponent) me.getSource();
-        if (isFirstTap) {
-            x = source.getX();
-            y = source.getY();
-            w = source.getWidth();
-            h = source.getHeight();
-            isFirstTap = false;
-        }
-        source.difference.size = new Vector2DPixel(w, h);
-        source.difference.position = new Vector2DPixel(x, y);
+        var bounds = source.getBounds();
+        source.difference.size = new Vector2DPixel(bounds.width, bounds.height);
+        source.difference.position = new Vector2DPixel(bounds.x, bounds.y);
     }
 
 }

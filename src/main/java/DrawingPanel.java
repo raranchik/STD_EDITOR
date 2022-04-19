@@ -40,7 +40,7 @@ public class DrawingPanel extends JLabel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        if (drawingListener.start == null || drawingListener.end == null) {
+        if (!drawingListener.isDrawing) {
             return;
         }
 
@@ -48,10 +48,6 @@ public class DrawingPanel extends JLabel {
         Vector2DPixel start = drawingListener.start;
         Vector2DPixel end = drawingListener.end;
         drawPerfectRect((Graphics2D) g, start, end);
-
-        if (!drawingListener.isDrawing) {
-            super.paintComponent(g);
-        }
     }
 
     public void drawPerfectRect(Graphics2D g2D, Vector2DPixel v1, Vector2DPixel v2) {
