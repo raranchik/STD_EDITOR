@@ -4,26 +4,31 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class DrawingPanel extends JLabel {
-    public final Color DRAWING_PANEL_BORDER_COLOR = Color.BLACK;
-    public final Color DIFFERENCES_DRAWING_BORDER_COLOR = Color.GREEN;
-    public final int DRAWING_PANEL_BORDER_THICKNESS = 5;
+    private final String COUNT_ITEMS_LABEL_TEMPLATE = "Count differences: ";
+    private final Color DRAWING_PANEL_BORDER_COLOR = Color.BLACK;
+    private final Color DIFFERENCES_DRAWING_BORDER_COLOR = Color.GREEN;
+    private final int DRAWING_PANEL_BORDER_THICKNESS = 5;
 
-    public ArrayList<DraggableAndResizableComponent> dragComponents = new ArrayList<DraggableAndResizableComponent>();
-
-    public JList listComponents;
-    private JLabel countLabel;
-    public int lastIndex = 0;
-
-    public BasicStroke dragCompStroke = new BasicStroke(DraggableAndResizableComponent.thickness);
-    public LineBorder border = new LineBorder(DRAWING_PANEL_BORDER_COLOR, DRAWING_PANEL_BORDER_THICKNESS);
     public DrawingListener drawingListener = new DrawingListener();
 
-    DrawingPanel(JList aList, JLabel aLabel) {
-        countLabel = aLabel;
-        listComponents = aList;
-        listComponents.clearSelection();
-        listComponents.setModel(new DefaultListModel());
+    private JList sourceList = null;
+    private JLabel countLabel = null;
+    private JButton removeDsButton = null;
+    private int lastIndex = 0;
+    private ArrayList<DraggableAndResizableComponent> components = null;
+    private BasicStroke dragCompStroke = new BasicStroke(DraggableAndResizableComponent.thickness);
+    private LineBorder border = new LineBorder(DRAWING_PANEL_BORDER_COLOR, DRAWING_PANEL_BORDER_THICKNESS);
 
+    DrawingPanel(JList aSourceList, JLabel aCountLabel, ArrayList<DifferenceTemp> aDifferences, JButton aRemoveDsButton) {
+        removeDsButton = aRemoveDsButton;
+        removeDsButton.setEnabled(false);
+        sourceList = aSourceList;
+        countLabel = aCountLabel;
+        clearList();
+
+        if (aDifferences != null && aDifferences.size() > 0) {
+            createComponents(aDifferences);
+        }
         setBorder(border);
         addMouseListener(drawingListener);
         addMouseMotionListener(drawingListener);
@@ -32,13 +37,38 @@ public class DrawingPanel extends JLabel {
     public void setNewBorderSize(int s) {
         DraggableAndResizableComponent.thickness = s;
         dragCompStroke = new BasicStroke(s);
-        for (DraggableAndResizableComponent d : this.dragComponents) {
+        for (DraggableAndResizableComponent d : components) {
             d.updateThickness();
         }
     }
 
+    public ArrayList<DifferenceTemp> getDifferences() {
+        var ds = new ArrayList<DifferenceTemp>();
+        for (var c: components) {
+            ds.add(c.getDifference());
+        }
+
+        return ds;
+    }
+
+    public int getLastIndex() {
+        return ++lastIndex;
+    }
+
+    public void addComponent(DraggableAndResizableComponent component) {
+        add(component);
+        components.add(component);
+        updateList();
+    }
+
+    public void removeComponent(DraggableAndResizableComponent component) {
+        components.remove(component);
+        remove(component);
+        updateList();
+    }
+
     @Override
-    public void paintComponent(Graphics g) {
+    protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         if (!drawingListener.isDrawing) {
             return;
@@ -50,7 +80,16 @@ public class DrawingPanel extends JLabel {
         drawPerfectRect((Graphics2D) g, start, end);
     }
 
-    public void drawPerfectRect(Graphics2D g2D, Vector2DPixel v1, Vector2DPixel v2) {
+    private void createComponents(ArrayList<DifferenceTemp> differences) {
+        for (var d : differences) {
+            var component = new DraggableAndResizableComponent();
+            component.setDifferencePosition(d.position);
+            component.setDifferenceSize(d.size);
+            component.release(this);
+        }
+    }
+
+    private void drawPerfectRect(Graphics2D g2D, Vector2DPixel v1, Vector2DPixel v2) {
         int px = Math.min(v1.x, v2.x);
         int py = Math.min(v1.y, v2.y);
         int pw = Math.abs(v1.x - v2.x);
@@ -60,26 +99,40 @@ public class DrawingPanel extends JLabel {
         g2D.drawRect(px, py, pw, ph);
     }
 
-    public void updateList() {
-        var newModel = new DefaultListModel<String>();
-        for (int i = 0; i < dragComponents.size(); i++) {
-            var c = dragComponents.get(i);
-            var d = c.difference;
-            var dName = String.format("%s%s", d.DIFFERENCE_NAME_TEMPLATE, d.index);
-            newModel.addElement(dName);
-        }
-        listComponents.setModel(newModel);
-        var message = String.format("%s%s", WorkSpace.COUNT_DIFFERENCES_TEMPLATE, dragComponents.size());
-        countLabel.setText(message);
+    private void updateList() {
+        updateModel();
+        updateCountLabel();
     }
 
-    public ArrayList<DifferenceTemp> getDifferences() {
-        var ds = new ArrayList<DifferenceTemp>();
-        for (var c: dragComponents) {
-            ds.add(c.difference);
+    protected void clearList() {
+        if (components != null && components.size() > 0) {
+            for (var c : components) {
+                remove(c);
+            }
         }
 
-        return ds;
+        components = new ArrayList<DraggableAndResizableComponent>();
+        updateList();
+    }
+
+    private void updateModel() {
+        var model = new DefaultListModel<String>();
+        if (components.size() == 0) {
+            sourceList.setModel(model);
+
+            return;
+        }
+
+        for (var c : components) {
+            var d = c.getDifference();
+            model.addElement(d.toString());
+        }
+        sourceList.setModel(model);
+        removeDsButton.setEnabled(true);
+    }
+
+    private void updateCountLabel() {
+        countLabel.setText(COUNT_ITEMS_LABEL_TEMPLATE + components.size());
     }
 
 }

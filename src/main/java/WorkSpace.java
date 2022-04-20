@@ -1,8 +1,13 @@
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.*;
@@ -153,9 +158,9 @@ public class WorkSpace extends JFrame {
         //======== levelsDataContainer ========
         {
             levelsDataContainer.setBorder(new TitledBorder(null, "Levels data", TitledBorder.LEFT, TitledBorder.TOP, null, Color.black));
-            levelsDataContainer.setMaximumSize(new Dimension(300, 2147483647));
-            levelsDataContainer.setMinimumSize(new Dimension(200, 226));
-            levelsDataContainer.setPreferredSize(new Dimension(300, 538));
+            levelsDataContainer.setMaximumSize(new Dimension(400, 2147483647));
+            levelsDataContainer.setMinimumSize(new Dimension(300, 226));
+            levelsDataContainer.setPreferredSize(new Dimension(350, 538));
             levelsDataContainer.setLayout(new GridBagLayout());
             ((GridBagLayout)levelsDataContainer.getLayout()).columnWeights = new double[] {1.0};
             ((GridBagLayout)levelsDataContainer.getLayout()).rowWeights = new double[] {1.0};
@@ -383,9 +388,9 @@ public class WorkSpace extends JFrame {
         //======== selectCardAndDifferencesContainer ========
         {
             selectCardAndDifferencesContainer.setBorder(new TitledBorder(null, "Select card and list differences", TitledBorder.LEFT, TitledBorder.TOP, null, Color.black));
-            selectCardAndDifferencesContainer.setMaximumSize(new Dimension(300, 2147483647));
-            selectCardAndDifferencesContainer.setMinimumSize(new Dimension(200, 264));
-            selectCardAndDifferencesContainer.setPreferredSize(new Dimension(300, 420));
+            selectCardAndDifferencesContainer.setMaximumSize(new Dimension(400, 2147483647));
+            selectCardAndDifferencesContainer.setMinimumSize(new Dimension(300, 264));
+            selectCardAndDifferencesContainer.setPreferredSize(new Dimension(350, 420));
             selectCardAndDifferencesContainer.setLayout(new GridBagLayout());
             ((GridBagLayout)selectCardAndDifferencesContainer.getLayout()).columnWidths = new int[] {0, 0};
             ((GridBagLayout)selectCardAndDifferencesContainer.getLayout()).rowHeights = new int[] {0, 0, 0, 0, 0};
@@ -521,15 +526,35 @@ public class WorkSpace extends JFrame {
 
         try {
             var source = (JList) e.getSource();
+            LevelsDataPreparerBase preparer;
             int i = source.getSelectedIndex();
-            if (existLevelsPreparer.currentSelect == i || i == -1) {
+            if (existLevelsPreparer != null && existLevelsPreparer.sourceEquals(source)) {
+                if (newLevelsPreparer != null) {
+                    newLevelsPreparer.clearSelection();
+                }
+                preparer = existLevelsPreparer;
+            }
+            else if (newLevelsPreparer != null && newLevelsPreparer.sourceEquals(source)) {
+                if (existLevelsPreparer != null) {
+                    existLevelsPreparer.clearSelection();
+                }
+                preparer = newLevelsPreparer;
+            }
+            else {
                 return;
             }
 
-            existLevelsPreparer.currentSelect = i;
-            var l = existLevelsPreparer.levels.get(i);
-            fCardAbsPath = l.fCardAbsPath;
-            sCardAbsPath = l.sCardAbsPath;
+            if (preparer.getSelectIndex() == i || i < 0) {
+                return;
+            }
+
+            var data = preparer.getItemBySelectIndex(i);
+            if (data == null)  {
+                return;
+            }
+
+            fCardAbsPath = data.fCardAbsPath;
+            sCardAbsPath = data.sCardAbsPath;
             if (fCardAbsPath.isEmpty() || sCardAbsPath.isEmpty()) {
                 showError(this, WARNING_TITLE_IF_SELECT_LEVEL_EMPTY, WARNING_MESSAGE_IF_SELECT_LEVEL_EMPTY);
 
@@ -541,17 +566,17 @@ public class WorkSpace extends JFrame {
                 file = new File(sCardAbsPath);
                 sCardImage = ImageIO.read(file);
                 sCardFileName = file.getName();
+                enableComponentsSecondCard(true);
             }
             else {
                 disableComponentsSecondCard();
             }
+
             file = new File(fCardAbsPath);
             fCardImage = ImageIO.read(file);
             fCardFileName = file.getName();
-            currentViewImage = 1;
-            drawCard();
+            drawCard((byte) 0, true, data);
             enableComponentsFirstCard(true);
-            enableComponentsSecondCard(true);
         }
         catch (IOException ignored) { }
     }
@@ -580,18 +605,18 @@ public class WorkSpace extends JFrame {
 
     private void enableComponentsFolderChooser() {
 //        folderAbsPath = folderChooser.getSelectedFile().toString();
-//        folderAbsPath = "C:\\prj\\spot-the-difference\\Assets\\Sprites\\Cards";
-        folderAbsPath = "/Users/ds27/Documents/GIT/Spot_the_Difference/Assets/Sprites/Cards";
+        folderAbsPath = "C:\\prj\\spot-the-difference\\Assets\\Sprites\\Cards";
+//        folderAbsPath = "/Users/ds27/Documents/GIT/Spot_the_Difference/Assets/Sprites/Cards";
         updateLabel(workDerectoryLabel, WORK_DIRECTORY_TEMPLATE, folderAbsPath);
         selectFirstCardButton.setEnabled(true);
         cardsChooser.setCurrentDirectory(new File(folderAbsPath));
-        loadExistLevelData(true);
+        loadExistLevelData();
     }
 
     private void disableComponentsFolderChooser() {
         folderAbsPath = "";
         updateLabel(workDerectoryLabel, WORK_DIRECTORY_TEMPLATE, NOT_SELECTED_MESSAGE);
-        loadExistLevelData(false);
+        loadExistLevelData();
         disableComponentsFirstCard();
         disableComponentsSecondCard();
     }
@@ -603,15 +628,6 @@ public class WorkSpace extends JFrame {
                 disableComponentsSecondCard();
 
                 return;
-            }
-
-            if (!listExistLevelData.isSelectionEmpty()) {
-                listExistLevelData.clearSelection();
-            }
-
-            if (sCardFileName != null) {
-                disableComponentsFirstCard();
-                disableComponentsSecondCard();
             }
 
             enableComponentsFirstCard(false);
@@ -643,9 +659,7 @@ public class WorkSpace extends JFrame {
         fCardAbsPath = cardsChooser.getSelectedFile().toString();
         try {
             fCardImage = ImageIO.read(cardsChooser.getSelectedFile());
-            currentViewImage = 1;
-            drawCard();
-            updateLabel(currentViewCardLabel, CURRENT_CARD_TEMPLATE, fCardFileName);
+            drawCard((byte) 0, true, null);
             updateLabel(selectFirstCardLabel, FIRST_CARD_TEMPLATE, fCardFileName);
         }
         catch (IOException ignored) { }
@@ -709,10 +723,7 @@ public class WorkSpace extends JFrame {
         switchCardButton.setEnabled(false);
         differencesBorderSizeSlider.setEnabled(false);
         if (fCardImage != null && currentViewImage != 0 && cardView != null) {
-            currentViewImage = 0;
-            cardView.setIcon(new ImageIcon(fCardImage));
-            cardView.setSize(fCardImage.getWidth(), fCardImage.getHeight());
-            updateLabel(currentViewCardLabel, CURRENT_CARD_TEMPLATE, fCardFileName);
+            drawCard((byte) 0, false, null);
         }
     }
 
@@ -721,48 +732,86 @@ public class WorkSpace extends JFrame {
             return;
         }
 
-        ImageIcon icon;
-        BufferedImage source;
-        String currentCardName;
         if (currentViewImage == 1) {
-            source = sCardImage;
-            icon = new ImageIcon(sCardImage);
-            currentViewImage = 0;
-            currentCardName = sCardFileName;
+            drawCard((byte) 0, false, null);
         }
         else if (currentViewImage == 0) {
-            source = fCardImage;
-            icon = new ImageIcon(fCardImage);
-            currentViewImage = 1;
-            currentCardName = fCardFileName;
+            drawCard((byte) 1, false, null);
         }
-        else {
-            return;
-        }
-
-        cardView.setIcon(icon);
-        cardView.setSize(source.getWidth(), source.getHeight());
-        updateLabel(currentViewCardLabel, CURRENT_CARD_TEMPLATE, currentCardName);
 
         repaint();
     }
 
     private void saveAll(ActionEvent e) {
-        // TODO add your code here
+        ArrayList<LevelDataTemp> newLevels = new ArrayList<LevelDataTemp>();
+        if (newLevelsPreparer != null) {
+            newLevels = newLevelsPreparer.getLevels();
+        }
+        if (newLevels.size() == 0) {
+            return;
+        }
+
+        ArrayList<LevelDataTemp> existLevels = new ArrayList<LevelDataTemp>();
+        if (existLevelsPreparer != null) {
+            existLevels = existLevelsPreparer.getLevels();
+        }
+        ArrayList<LevelDataTemp> allLevels = new ArrayList<LevelDataTemp>();
+        allLevels.addAll(existLevels);
+        allLevels.addAll(newLevels);
+
+        JFileChooser saveChooser = new JFileChooser();
+        saveChooser.setCurrentDirectory(new File("."));
+        saveChooser.setDialogTitle(FOLDER_CHOOSER_TITLE);
+        saveChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        saveChooser.setAcceptAllFileFilterUsed(false);
+        if (saveChooser.showOpenDialog(saveAllButton) == JFileChooser.APPROVE_OPTION) {
+            String saveFolder = saveChooser.getSelectedFile().toString();
+            String fileName = "NewLevelsData_" + System.currentTimeMillis() + ".txt";
+            File file = new File(saveFolder + File.separator + fileName);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.findAndRegisterModules();
+            try {
+                file.createNewFile();
+                mapper.writeValue(file, allLevels);
+            }
+            catch (IOException ignored) {
+            }
+        }
     }
 
     private void saveNewData(ActionEvent e) {
         if (newLevelsPreparer == null) {
-            newLevelsPreparer = new NewLevelsDataPreparer(listNewLevelData, countNewLevelDataLabel);
-            listNewLevelData.setEnabled(true);
+            newLevelsPreparer = new NewLevelsDataPreparer(listNewLevelData, countNewLevelDataLabel, selectedNewLevelDataLabel);
             saveAllButton.setEnabled(true);
         }
 
-        newLevelsPreparer.addItem(fCardAbsPath, sCardAbsPath, cardView.getDifferences());
+        LevelDataTemp data;
+        if (existLevelsPreparer.hasSelectionItem()) {
+            data = existLevelsPreparer.getSelectionItem();
+            data.isEdit = true;
+            data.isNew = false;
+            data.differences = cardView.getDifferences();
+            existLevelsPreparer.removeItem(data);
+        }
+        else if (newLevelsPreparer.hasSelectionItem()) {
+            data = newLevelsPreparer.getSelectionItem();
+            data.isNew = !data.isEdit;
+            data.differences = cardView.getDifferences();
+            newLevelsPreparer.clearSelection();
+
+            return;
+        }
+        else {
+            data = new LevelDataTemp(fCardAbsPath, sCardAbsPath, cardView.getDifferences());
+            data.isNew = true;
+            data.isEdit = false;
+        }
+
+        newLevelsPreparer.addItem(data);
     }
 
     private void removeAllDifferences(ActionEvent e) {
-        // TODO add your code here
+        drawCard((byte) 0, true, null);
     }
     // endregion
 
@@ -791,14 +840,8 @@ public class WorkSpace extends JFrame {
         label.setText(template + message);
     }
 
-    private void loadExistLevelData(boolean clear) {
-        DefaultListModel<String> model = new DefaultListModel<String>();
-        if (!clear) {
-            listExistLevelData.setModel(model);
-            return;
-        }
-
-        existLevelsPreparer = new ExistLevelsDataPreparer(listExistLevelData, countExistLevelDataLabel, folderAbsPath);
+    private void loadExistLevelData() {
+        existLevelsPreparer = new ExistLevelsDataPreparer(listExistLevelData, countExistLevelDataLabel, selectedExistLevelDataLabel, folderAbsPath);
     }
 
     private boolean isIdenticalFiles(String firstFile, String secondFile) {
@@ -811,12 +854,33 @@ public class WorkSpace extends JFrame {
         return false;
     }
 
-    private void drawCard() {
-        if (cardView != null) {
+    private void drawCard(Byte indexView, Boolean createNew, LevelDataTemp data) {
+        if (createNew && cardView != null) {
             cardContainer.remove(cardView);
+            setNewCardView(data);
+        }
+        else if (cardView == null) {
+            setNewCardView(data);
         }
 
-        cardView = new DrawingPanel(listDifferences, countDifferencesLabel);
+        String currentCardName = indexView == (byte) 0 ? fCardFileName : sCardFileName;
+        BufferedImage image = indexView == (byte) 0 ? fCardImage : sCardImage;
+        currentViewImage = indexView;
+
+        ImageIcon icon = new ImageIcon(image);
+        cardView.setIcon(icon);
+        cardView.setSize(image.getWidth(), image.getHeight());
+        saveNewDataButton.setEnabled(true);
+        updateLabel(currentViewCardLabel, CURRENT_CARD_TEMPLATE, currentCardName);
+
+        repaint();
+    }
+
+    private void setNewCardView(LevelDataTemp data) {
+        cardView = data != null
+                ? new DrawingPanel(listDifferences, countDifferencesLabel, data.differences, removeAllDifferencesButton)
+                : new DrawingPanel(listDifferences, countDifferencesLabel, null, removeAllDifferencesButton);
+
         DraggableAndResizableComponent.thickness = (int) differencesBorderSizeSlider.getValue();
         cardView.setAlignmentX(0.5F);
         cardContainer.add(
@@ -828,18 +892,11 @@ public class WorkSpace extends JFrame {
                         new Insets(0, 0, 0, 0), 0, 0
                 )
         );
-
-        ImageIcon icon = new ImageIcon(fCardImage);
-        cardView.setIcon(icon);
-        cardView.setSize(fCardImage.getWidth(), fCardImage.getHeight());
-        saveNewDataButton.setEnabled(true);
-
-        repaint();
     }
 
     private void prepareMainFrame() {
         Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
-        setSize((int) (size.width * 0.75f), (int) (size.height * 0.85f));
+        setSize((int) (size.width * 0.9f), (int) (size.height * 0.9f));
         setLocationRelativeTo(null);
     }
 

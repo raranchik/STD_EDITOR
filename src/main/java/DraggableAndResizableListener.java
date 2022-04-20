@@ -121,10 +121,11 @@ public class DraggableAndResizableListener extends MouseAdapter {
     @Override
     public void mouseReleased(MouseEvent me) {
         startPos = null;
+
         DraggableAndResizableComponent source = (DraggableAndResizableComponent) me.getSource();
         var bounds = source.getBounds();
-        source.difference.position = new Vector2DPixel(bounds.x, bounds.y);
-        source.difference.size = new Vector2DPixel(bounds.width, bounds.height);
+        source.setDifferencePosition(new Vector2DPixel(bounds.x, bounds.y));
+        source.setDifferenceSize(new Vector2DPixel(bounds.width, bounds.height));
     }
 
 }

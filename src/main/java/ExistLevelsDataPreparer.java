@@ -8,32 +8,29 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class ExistLevelsDataPreparer {
-    public static final String NOT_EXISTS = "FILE FOLDER NOT EXISTS";
+public class ExistLevelsDataPreparer extends LevelsDataPreparerBase {
+    public static final String NOT_EXISTS = "data folder not exist";
     public static final Color COLOR_IF_NOT_EXISTS = Color.RED;
     public static final Color COLOR_IF_EXISTS = Color.BLACK;
-    public static final String COUNT_LEVELS_DATA_LABEL_TEMPLATE = "Count levels data: ";
+
     public static final String MAIN_DIRECTORY = "Assets"; // Assets // STD
     public static final String SCRIPTABLE_OBJECT_FOLDER_NAME = "ScriptableObject";
     public static final String LEVEL_DATA_FOLDER_NAME = "LevelData";
-    public ArrayList<LevelDataTemp> levels = new ArrayList<LevelDataTemp>();
-    public int currentSelect = -1;
-    public int lastIndex = 0;
-    private JList source;
-    private JLabel sourceLabel;
+
     private String workDirectory = "";
-    private DefaultListModel<String> model = new DefaultListModel<String>();
     private File folder = null;
     private String levelsDataAbsolutePath = "";
     private File[] levelsFiles = null;
     private File[][] cardsFiles = null;
-    private ObjectMapper mapper = new ObjectMapper(new YAMLFactory());
+    private ObjectMapper YAMLmapper = new ObjectMapper(new YAMLFactory());
 
-    public ExistLevelsDataPreparer(JList aSource, JLabel aLabel, String aWorkDirectory) {
-        source = aSource;
-        sourceLabel = aLabel;
+    public ExistLevelsDataPreparer(JList aSourceList, JLabel aCountLabel, JLabel aSelectLabel, String aWorkDirectory) {
+        super(aSourceList, aCountLabel, aSelectLabel);
+
+        COUNT_ITEMS_LABEL_TEMPLATE = "Count existing data: ";
+        SELECT_LABEL_TEMPLATE = "Selected existing data: ";
         workDirectory = aWorkDirectory;
-        mapper.findAndRegisterModules();
+        YAMLmapper.findAndRegisterModules();
         prepareLevelsDataFolder();
     }
 
@@ -47,25 +44,21 @@ public class ExistLevelsDataPreparer {
                         + LEVEL_DATA_FOLDER_NAME;
         folder = new File(levelsDataAbsolutePath);
         if (!folder.exists()) {
-            setEmpty();
+            // TODO Красить в красный сообщение
+            clearList();
             return;
         }
 
         try {
             FileFilterExt ffe = new FileFilterExt("asset", "Assets", true);
             levelsFiles = folder.listFiles(ffe);
-            for (int i = 0; i < levelsFiles.length; i++) {
-                String name = levelsFiles[i].getName();
-                model.add(i, name.replace(".asset", ""));
-            }
-            source.setEnabled(true);
-            source.setModel(model);
-            sourceLabel.setText(COUNT_LEVELS_DATA_LABEL_TEMPLATE + model.size());
-            sourceLabel.setForeground(COLOR_IF_EXISTS);
             matchDataCard();
+            createLevelsData();
+            updateList();
         }
         catch (IOException e) {
-            setEmpty();
+            // TODO Красить в красный сообщение
+            clearList();
         }
     }
 
@@ -82,43 +75,45 @@ public class ExistLevelsDataPreparer {
             cardsFiles[i][0] = cards[i];
             cardsFiles[i][1] = cardsMeta[cardMeta];
         }
+    }
+
+    private void createLevelsData() throws IOException {
         for (int i = 0; i < levelsFiles.length; i++) {
-            MonoBehaviour content = mapper.readValue(levelsFiles[i], MonoBehaviour.class);
+            MonoBehaviour content = YAMLmapper.readValue(levelsFiles[i], MonoBehaviour.class);
             File firstCard = findRefCardByGUID(content.monoBehaviour.pictureFirst.guid);
             File secondCard = findRefCardByGUID(content.monoBehaviour.pictureSecond.guid);
+            // TODO ADD DIFFERENCES
             ArrayList<DifferenceTemp> differences = new ArrayList<DifferenceTemp>();
             lastIndex++;
-            var data = new LevelDataTemp(firstCard.getAbsolutePath(), secondCard.getAbsolutePath(), differences, lastIndex);
+            var data = new LevelDataTemp(firstCard.getAbsolutePath(), secondCard.getAbsolutePath(), differences);
+            data.index = lastIndex;
+            data.isEdit = false;
+            data.isNew = false;
+            data.fileName = levelsFiles[i].getName();
             levels.add(data);
         }
     }
 
-    private int findCardMetaIndexByName(String name, File metas[]) {
+    private int findCardMetaIndexByName(String name, File[] metas) {
         for (int i = 0; i < metas.length; i++) {
             if (metas[i].getName().contains(name)) {
                 return i;
             }
         }
+
         return -1;
     }
 
     private File findRefCardByGUID(String guid) throws IOException {
         for (int i = 0; i < cardsFiles.length; i++) {
-            var content = mapper.readValue(cardsFiles[i][1], Sprite.class);
+            var content = YAMLmapper.readValue(cardsFiles[i][1], Sprite.class);
             var contentGUID = content.guid;
             if (guid.equals(contentGUID)) {
                 return cardsFiles[i][0];
             }
         }
-        return null;
-    }
 
-    private void setEmpty() {
-        source.setEnabled(false);
-        model = new DefaultListModel<String>();
-        source.setModel(model);
-        sourceLabel.setText(COUNT_LEVELS_DATA_LABEL_TEMPLATE + NOT_EXISTS);
-        sourceLabel.setForeground(COLOR_IF_NOT_EXISTS);
+        return null;
     }
 
 }

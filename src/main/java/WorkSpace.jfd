@@ -51,9 +51,9 @@ new FormModel {
 			} ) {
 				name: "levelsDataContainer"
 				"border": new javax.swing.border.TitledBorder( null, "Levels data", 1, 2, null, sfield java.awt.Color black )
-				"maximumSize": new java.awt.Dimension( 300, 2147483647 )
-				"minimumSize": new java.awt.Dimension( 200, 226 )
-				"preferredSize": new java.awt.Dimension( 300, 538 )
+				"maximumSize": new java.awt.Dimension( 400, 2147483647 )
+				"minimumSize": new java.awt.Dimension( 300, 226 )
+				"preferredSize": new java.awt.Dimension( 350, 538 )
 				add( new FormContainer( "javax.swing.JSplitPane", new FormLayoutManager( class javax.swing.JSplitPane ) ) {
 					name: "splitExistAndNewLevelDataPane"
 					"orientation": 0
@@ -304,9 +304,9 @@ new FormModel {
 			} ) {
 				name: "selectCardAndDifferencesContainer"
 				"border": new javax.swing.border.TitledBorder( null, "Select card and list differences", 1, 2, null, sfield java.awt.Color black )
-				"maximumSize": new java.awt.Dimension( 300, 2147483647 )
-				"minimumSize": new java.awt.Dimension( 200, 264 )
-				"preferredSize": new java.awt.Dimension( 300, 420 )
+				"maximumSize": new java.awt.Dimension( 400, 2147483647 )
+				"minimumSize": new java.awt.Dimension( 300, 264 )
+				"preferredSize": new java.awt.Dimension( 350, 420 )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
 					"$columnSpecs": "0:1.0"
 					"$rowSpecs": "0, 0"
