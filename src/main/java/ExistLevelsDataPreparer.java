@@ -13,7 +13,7 @@ public class ExistLevelsDataPreparer extends LevelsDataPreparerBase {
     public static final Color COLOR_IF_NOT_EXISTS = Color.RED;
     public static final Color COLOR_IF_EXISTS = Color.BLACK;
 
-    public static final String MAIN_DIRECTORY = "Assets"; // Assets // STD
+    public static final String MAIN_DIRECTORY = "STD"; // Assets // STD
     public static final String SCRIPTABLE_OBJECT_FOLDER_NAME = "ScriptableObject";
     public static final String LEVEL_DATA_FOLDER_NAME = "LevelData";
 

@@ -605,8 +605,9 @@ public class WorkSpace extends JFrame {
 
     private void enableComponentsFolderChooser() {
 //        folderAbsPath = folderChooser.getSelectedFile().toString();
-        folderAbsPath = "C:\\prj\\spot-the-difference\\Assets\\Sprites\\Cards";
+//        folderAbsPath = "C:\\prj\\spot-the-difference\\Assets\\Sprites\\Cards";
 //        folderAbsPath = "/Users/ds27/Documents/GIT/Spot_the_Difference/Assets/Sprites/Cards";
+        folderAbsPath = "/Users/ds27/Documents/GIT/Logic/Assets/STD/Sprites/Cards";
         updateLabel(workDerectoryLabel, WORK_DIRECTORY_TEMPLATE, folderAbsPath);
         selectFirstCardButton.setEnabled(true);
         cardsChooser.setCurrentDirectory(new File(folderAbsPath));
