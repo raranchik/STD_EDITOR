@@ -624,31 +624,30 @@ public class WorkSpace extends JFrame {
 
     // region BUTTONS
     private void selectWorkDirectory(ActionEvent e) {
-        enableComponentsFolderChooser();
+//        enableComponentsFolderChooser();
+        if (folderChooser.showOpenDialog(workDirectoryButton) == JFileChooser.APPROVE_OPTION) {
+            if (!folderChooser.getSelectedFile().toString().endsWith(CARDS_FOLDER_NAME)) {
+                showError(this, WARNING_TITLE_IF_NOT_CARDS_FOLDER, WARNING_MESSAGE_IF_NOT_CARDS_FOLDER);
+                disableComponentsFolderChooser();
 
-//        if (folderChooser.showOpenDialog(workDirectoryButton) == JFileChooser.APPROVE_OPTION) {
-//            if (!folderChooser.getSelectedFile().toString().endsWith(CARDS_FOLDER_NAME)) {
-//                showError(this, WARNING_TITLE_IF_NOT_CARDS_FOLDER, WARNING_MESSAGE_IF_NOT_CARDS_FOLDER);
-//                disableComponentsFolderChooser();
-//
-//                return;
-//            }
-//
-//            enableComponentsFolderChooser();
-//        }
-//        else {
-//            disableComponentsFolderChooser();
-//        }
+                return;
+            }
+
+            enableComponentsFolderChooser();
+        }
+        else {
+            disableComponentsFolderChooser();
+        }
 
         repaint();
     }
 
     private void enableComponentsFolderChooser() {
-//        folderAbsPath = folderChooser.getSelectedFile().toString();
+        folderAbsPath = folderChooser.getSelectedFile().toString();
 //        folderAbsPath = "C:\\prj\\spot-the-difference\\Assets\\Sprites\\Cards";
 //        folderAbsPath = "/Users/ds27/Documents/GIT/Spot_the_Difference/Assets/Sprites/Cards";
 //        folderAbsPath = "/Users/ds27/Documents/GIT/Logic/Assets/STD/Sprites/Cards";
-        folderAbsPath = "C:\\prj\\Logic\\Assets\\STD\\Sprites\\Cards";
+//        folderAbsPath = "C:\\prj\\Logic\\Assets\\STD\\Sprites\\Cards";
         updateLabel(workDerectoryLabel, WORK_DIRECTORY_TEMPLATE, folderAbsPath);
         cardsChooser.setCurrentDirectory(new File(folderAbsPath));
         loadExistLevelData();
