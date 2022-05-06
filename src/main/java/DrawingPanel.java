@@ -13,15 +13,12 @@ public class DrawingPanel extends JLabel {
 
     private JList sourceList = null;
     private JLabel countLabel = null;
-    private JButton removeDsButton = null;
     private int lastIndex = 0;
     private ArrayList<DraggableAndResizableComponent> components = null;
     private BasicStroke dragCompStroke = new BasicStroke(DraggableAndResizableComponent.thickness);
     private LineBorder border = new LineBorder(DRAWING_PANEL_BORDER_COLOR, DRAWING_PANEL_BORDER_THICKNESS);
 
-    DrawingPanel(JList aSourceList, JLabel aCountLabel, ArrayList<DifferenceTemp> aDifferences, JButton aRemoveDsButton) {
-        removeDsButton = aRemoveDsButton;
-        removeDsButton.setEnabled(false);
+    DrawingPanel(JList aSourceList, JLabel aCountLabel, ArrayList<DifferenceTemp> aDifferences) {
         sourceList = aSourceList;
         countLabel = aCountLabel;
         clearList();
@@ -128,7 +125,6 @@ public class DrawingPanel extends JLabel {
             model.addElement(d.toString());
         }
         sourceList.setModel(model);
-        removeDsButton.setEnabled(true);
     }
 
     private void updateCountLabel() {

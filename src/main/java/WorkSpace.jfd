@@ -132,6 +132,7 @@ new FormModel {
 								"enabled": false
 								"selectionMode": 0
 								addEvent( new FormEvent( "javax.swing.event.ListSelectionListener", "valueChanged", "selectLevelData", true ) )
+								addEvent( new FormEvent( "java.awt.event.KeyListener", "keyPressed", "listNewLevelDataKeyPressed", true ) )
 							} )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 							"gridy": 1
@@ -183,7 +184,7 @@ new FormModel {
 				name: "cardViewContainer"
 				"border": new javax.swing.border.TitledBorder( null, "Card view", 1, 2, null, sfield java.awt.Color black )
 				add( new FormContainer( "javax.swing.JPanel", new FormLayoutManager( class java.awt.GridBagLayout ) {
-					"$columnSpecs": "0"
+					"$columnSpecs": "0, 0"
 					"$rowSpecs": "0, 0"
 					"$hGap": 5
 					"$alignLeft": true
@@ -199,6 +200,19 @@ new FormModel {
 						"enabled": false
 						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "switchCard", true ) )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"hAlign": 0
+						"vAlign": 0
+						"insets": new java.awt.Insets( 10, 0, 0, 0 )
+					} )
+					add( new FormComponent( "javax.swing.JButton" ) {
+						name: "button1"
+						"text": "Create new Level data"
+						"maximumSize": new java.awt.Dimension( 200, 40 )
+						"minimumSize": new java.awt.Dimension( 200, 40 )
+						"preferredSize": new java.awt.Dimension( 200, 40 )
+						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "CreateNewLevelData", true ) )
+					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
+						"gridx": 1
 						"hAlign": 0
 						"vAlign": 0
 						"insets": new java.awt.Insets( 10, 0, 0, 0 )
@@ -258,6 +272,7 @@ new FormModel {
 							"majorTickSpacing": 5
 							"minorTickSpacing": 1
 							"enabled": false
+							"visible": false
 							addEvent( new FormEvent( "javax.swing.event.ChangeListener", "stateChanged", "borderSizeUpdate", true ) )
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 							"hAlign": 0
@@ -265,25 +280,13 @@ new FormModel {
 						add( new FormComponent( "javax.swing.JLabel" ) {
 							name: "differencesBorderLabel"
 							"text": "Differences bordere size"
+							"visible": false
 						}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 							"gridy": 1
 							"hAlign": 0
 							"insets": new java.awt.Insets( 0, 0, 10, 0 )
 						} )
 					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) )
-					add( new FormComponent( "javax.swing.JButton" ) {
-						name: "removeAllDifferencesButton"
-						"text": "Remove differences"
-						"maximumSize": new java.awt.Dimension( 200, 40 )
-						"minimumSize": new java.awt.Dimension( 200, 40 )
-						"preferredSize": new java.awt.Dimension( 200, 40 )
-						"enabled": false
-						addEvent( new FormEvent( "java.awt.event.ActionListener", "actionPerformed", "removeAllDifferences", true ) )
-					}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
-						"gridx": 1
-						"hAlign": 0
-						"vAlign": 0
-					} )
 				}, new FormLayoutConstraints( class com.jformdesigner.runtime.GridBagConstraintsEx ) {
 					"gridy": 2
 				} )

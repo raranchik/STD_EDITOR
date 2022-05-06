@@ -1,19 +1,16 @@
-import LevelData.MonoBehaviour;
-import Sprite.Sprite;
+import LevelDataWrapper.Difference;
+import LevelDataWrapper.MonoBehaviour;
+import SpriteWrapper.Sprite;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 public class ExistLevelsDataPreparer extends LevelsDataPreparerBase {
-    public static final String NOT_EXISTS = "data folder not exist";
-    public static final Color COLOR_IF_NOT_EXISTS = Color.RED;
-    public static final Color COLOR_IF_EXISTS = Color.BLACK;
-
-    public static final String MAIN_DIRECTORY = "STD"; // Assets // STD
+    public static final String MAIN_DIRECTORY = "STD";
     public static final String SCRIPTABLE_OBJECT_FOLDER_NAME = "ScriptableObject";
     public static final String LEVEL_DATA_FOLDER_NAME = "LevelData";
 
@@ -44,7 +41,6 @@ public class ExistLevelsDataPreparer extends LevelsDataPreparerBase {
                         + LEVEL_DATA_FOLDER_NAME;
         folder = new File(levelsDataAbsolutePath);
         if (!folder.exists()) {
-            // TODO Красить в красный сообщение
             clearList();
             return;
         }
@@ -57,7 +53,6 @@ public class ExistLevelsDataPreparer extends LevelsDataPreparerBase {
             updateList();
         }
         catch (IOException e) {
-            // TODO Красить в красный сообщение
             clearList();
         }
     }
@@ -79,11 +74,10 @@ public class ExistLevelsDataPreparer extends LevelsDataPreparerBase {
 
     private void createLevelsData() throws IOException {
         for (int i = 0; i < levelsFiles.length; i++) {
-            MonoBehaviour content = YAMLmapper.readValue(levelsFiles[i], MonoBehaviour.class);
-            File firstCard = findRefCardByGUID(content.monoBehaviour.pictureFirst.guid);
-            File secondCard = findRefCardByGUID(content.monoBehaviour.pictureSecond.guid);
-            // TODO ADD DIFFERENCES
-            ArrayList<DifferenceTemp> differences = new ArrayList<DifferenceTemp>();
+            var content = YAMLmapper.readValue(levelsFiles[i], MonoBehaviour.class);
+            var firstCard = findRefCardByGUID(content.monoBehaviour.pictureFirst.guid);
+            var secondCard = findRefCardByGUID(content.monoBehaviour.pictureSecond.guid);
+            var differences = RetrieveDifferences(content.monoBehaviour.differences);
             lastIndex++;
             var data = new LevelDataTemp(firstCard.getAbsolutePath(), secondCard.getAbsolutePath(), differences);
             data.index = lastIndex;
@@ -108,12 +102,27 @@ public class ExistLevelsDataPreparer extends LevelsDataPreparerBase {
         for (int i = 0; i < cardsFiles.length; i++) {
             var content = YAMLmapper.readValue(cardsFiles[i][1], Sprite.class);
             var contentGUID = content.guid;
+
             if (guid.equals(contentGUID)) {
                 return cardsFiles[i][0];
             }
         }
 
         return null;
+    }
+
+    private ArrayList<DifferenceTemp> RetrieveDifferences(List<Difference> differencesWrap) {
+        var differences = new ArrayList<DifferenceTemp>();
+        for (var d : differencesWrap) {
+            var difference = new DifferenceTemp();
+            var sizeWrap = d.size;
+            difference.size = new Vector2DPixel((int) sizeWrap.x, (int) sizeWrap.y);
+            var posWrap = d.position;
+            difference.position = new Vector2DPixel((int) posWrap.x, (int) posWrap.y);
+            differences.add(difference);
+        }
+
+        return differences;
     }
 
 }

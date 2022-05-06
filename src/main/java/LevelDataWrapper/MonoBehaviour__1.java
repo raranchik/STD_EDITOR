@@ -1,9 +1,10 @@
-package LevelData;
+package LevelDataWrapper;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import javax.annotation.processing.Generated;
 import java.util.List;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -20,15 +21,13 @@ import java.util.List;
         "m_EditorClassIdentifier",
         "pictureFirst",
         "pictureSecond",
-        "timerTotalTime",
-        "timerMiddleBound",
-        "timerTopBound",
         "differences"
 })
+@Generated("jsonschema2pojo")
 public class MonoBehaviour__1 {
 
     @JsonProperty("m_ObjectHideFlags")
-    public Integer mObjectHideFlags;
+    public long mObjectHideFlags;
     @JsonProperty("m_CorrespondingSourceObject")
     public MCorrespondingSourceObject mCorrespondingSourceObject;
     @JsonProperty("m_PrefabInstance")
@@ -38,9 +37,9 @@ public class MonoBehaviour__1 {
     @JsonProperty("m_GameObject")
     public MGameObject mGameObject;
     @JsonProperty("m_Enabled")
-    public Integer mEnabled;
+    public long mEnabled;
     @JsonProperty("m_EditorHideFlags")
-    public Integer mEditorHideFlags;
+    public long mEditorHideFlags;
     @JsonProperty("m_Script")
     public MScript mScript;
     @JsonProperty("m_Name")
@@ -51,12 +50,6 @@ public class MonoBehaviour__1 {
     public PictureFirst pictureFirst;
     @JsonProperty("pictureSecond")
     public PictureSecond pictureSecond;
-    @JsonProperty("timerTotalTime")
-    public Integer timerTotalTime;
-    @JsonProperty("timerMiddleBound")
-    public Integer timerMiddleBound;
-    @JsonProperty("timerTopBound")
-    public Integer timerTopBound;
     @JsonProperty("differences")
     public List<Difference> differences = null;
 

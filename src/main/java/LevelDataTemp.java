@@ -1,5 +1,4 @@
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.ArrayList;
 
 public class LevelDataTemp {
@@ -13,6 +12,10 @@ public class LevelDataTemp {
     public Boolean isNew = false;
     @JsonIgnore
     public String fileName = "";
+    @JsonIgnore
+    private String fCardName = "";
+    @JsonIgnore
+    private String sCardName = "";
 
     public String fCardAbsPath = "";
     public String sCardAbsPath = "";
@@ -22,19 +25,36 @@ public class LevelDataTemp {
         fCardAbsPath = aFCardAbsPath;
         sCardAbsPath = aSCardAbsPath;
         differences = aDifferences;
+
+
     }
 
     @Override
     public String toString() {
         String nameSuffix = "";
-        if (isEdit && !isNew) {
+        if (fileName.isEmpty() || fileName.equals("NOT SELECTED")) {
+            if (fCardAbsPath != null) {
+                fCardName = fCardAbsPath.replaceAll("^.*[\\/\\\\]", "");
+                fCardName = fCardName.replaceAll("(?<!^)[.][^.]*$", "");
+            }
+            if (sCardAbsPath != null) {
+                sCardName = sCardAbsPath.replaceAll("^.*[\\/\\\\]", "");
+                sCardName = sCardName.replaceAll("(?<!^)[.][^.]*$", "");
+            }
+
+            if (fCardName.isEmpty() && sCardName.isEmpty()) {
+                fileName = "NOT SELECTED";
+            }
+            else {
+                fileName = String.format("%s_%s", fCardName, sCardName);
+            }
+        }
+
+        if (isEdit) {
             nameSuffix = String.format(" (Edit: %s)", fileName);
         }
-        else if (isNew && !isEdit) {
-            nameSuffix = " (New)";
-        }
-        else if (isEdit && isNew) {
-            nameSuffix = " (Edit new)";
+        else if (isNew) {
+            nameSuffix = String.format(" (New: %s)", fileName);
         }
         else {
             nameSuffix = String.format(" (%s)", fileName);

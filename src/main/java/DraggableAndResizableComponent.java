@@ -42,7 +42,6 @@ public class DraggableAndResizableComponent extends JComponent {
         setEnabled(true);
         setVisible(true);
 
-
         validate();
         repaint();
     }
@@ -53,7 +52,7 @@ public class DraggableAndResizableComponent extends JComponent {
     }
 
     public void setDifferenceSize(Vector2DPixel v) {
-        difference.position = v;
+        difference.size = v;
         size = v;
     }
 

@@ -1,22 +1,19 @@
-package LevelData;
+package LevelDataWrapper;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import javax.annotation.processing.Generated;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
-        "fileID",
-        "guid",
-        "type"
+        "fileID"
 })
-public class PictureSecond {
+@Generated("jsonschema2pojo")
+public class MGameObject {
 
     @JsonProperty("fileID")
-    public Long fileID;
-    @JsonProperty("guid")
-    public String guid;
-    @JsonProperty("type")
-    public Integer type;
+    public long fileID;
 
 }

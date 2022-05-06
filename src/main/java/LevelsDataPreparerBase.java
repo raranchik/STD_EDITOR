@@ -27,6 +27,11 @@ public class LevelsDataPreparerBase {
         return selectIndex;
     }
 
+    public void setLastSelectIndex() {
+        var _lastIndex = levels.size() - 1;
+        sourceList.setSelectedIndex(_lastIndex);
+    }
+
     public void addItem(LevelDataTemp data) {
         sourceList.setEnabled(true);
         clearSelection();
@@ -81,6 +86,13 @@ public class LevelsDataPreparerBase {
         updateList();
     }
 
+    public void updateList() {
+        clearSelection();
+        updateModel();
+        updateSelectLabel();
+        updateCountLabel();
+    }
+
     protected Boolean inListBounds(int index) {
         return index >= 0 && index <= levels.size();
     }
@@ -88,13 +100,6 @@ public class LevelsDataPreparerBase {
     protected void clearList() {
         levels = new ArrayList<LevelDataTemp>();
         updateList();
-    }
-
-    protected void updateList() {
-        clearSelection();
-        updateModel();
-        updateSelectLabel();
-        updateCountLabel();
     }
 
     protected void updateCountLabel() {
